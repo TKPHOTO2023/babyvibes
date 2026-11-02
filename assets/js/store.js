@@ -147,6 +147,7 @@
 	var pages = {};
 
 	pages.home = function (d) {
+		renderReviews();
 		renderGrid($('#new-arrivals'), newest(d.products).slice(0, 8));
 		var featured = d.products.filter(function (p) { return p.featured; }).slice(0, 4);
 		if (featured.length) { renderGrid($('#favourites'), featured); } else if ($('#favourites-section')) { $('#favourites-section').hidden = true; }
@@ -447,6 +448,135 @@
 				});
 		}
 		check();
+	};
+
+
+	// Reviews -------------------------------------------------------------------------------
+
+	function starsHtml(n) {
+		var out = '<span class="star-row" aria-label="' + n + ' out of 5 stars">';
+		for (var i = 1; i <= 5; i++) { out += '<span class="' + (i <= n ? 'on' : '') + '" aria-hidden="true">&#9733;</span>'; }
+		return out + '</span>';
+	}
+
+	function loadReviews() {
+		return fetch('data/reviews.json', { cache: 'no-cache' }).then(function (r) { return r.json(); })
+			.then(function (d) { return (d && d.reviews) || []; }).catch(function () { return []; });
+	}
+
+	function renderReviews() {
+		var root = $('#reviews');
+		if (!root) { return; }
+		loadReviews().then(function (list) {
+			list = list.filter(function (r) { return r.rating >= 1 && r.text; })
+				.sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+			if (!list.length) {
+				$('#reviews-summary').textContent = '';
+				root.innerHTML = '<div class="review-empty"><p class="lead">We\'re a brand-new shop, so our first reviews are on their way.</p>' +
+					'<p>Every review here comes from a real customer with a verified order.</p></div>';
+				return;
+			}
+			var avg = function (key) {
+				var xs = list.filter(function (r) { return r[key]; });
+				return xs.length ? xs.reduce(function (t, r) { return t + r[key]; }, 0) / xs.length : 0;
+			};
+			var overall = avg('rating');
+			var parts = [['Professionalism', avg('professionalism')], ['Convenience', avg('convenience')]]
+				.filter(function (x) { return x[1]; })
+				.map(function (x) { return x[0] + ' ' + x[1].toFixed(1) + '/5'; });
+			$('#reviews-summary').innerHTML = starsHtml(Math.round(overall)) + ' <strong>' + overall.toFixed(1) + ' out of 5</strong> from ' +
+				list.length + (list.length === 1 ? ' verified review' : ' verified reviews') + (parts.length ? '<br>' + parts.join(' &middot; ') : '');
+			root.innerHTML = list.slice(0, 6).map(function (r) {
+				return '<figure class="review">' + starsHtml(r.rating) + '<blockquote>' + esc(r.text) + '</blockquote>' +
+					'<figcaption><strong>' + esc(r.name) + '</strong>' + (r.location ? ', ' + esc(r.location) : '') +
+					(r.verified ? ' <span class="verified">Verified buyer</span>' : '') + '</figcaption></figure>';
+			}).join('');
+		});
+	}
+
+	pages.review = function () {
+		var form = $('#review-form');
+		var alert = $('#review-alert');
+		if (params.get('order')) { form.elements.order.value = params.get('order'); }
+		var saved = store(CUSTOMER_KEY) || {};
+		if (saved.email) { form.elements.email.value = saved.email; }
+		if (saved.firstName && saved.lastName) { form.elements.name.value = saved.firstName + ' ' + saved.lastName.charAt(0) + '.'; }
+		if (saved.city) { form.elements.location.value = saved.city; }
+
+		var values = {};
+		form.querySelectorAll('.stars').forEach(function (group) {
+			var name = group.getAttribute('data-name');
+			values[name] = 0;
+			for (var i = 1; i <= 5; i++) {
+				group.insertAdjacentHTML('beforeend', '<button type="button" role="radio" aria-checked="false" data-v="' + i +
+					'" aria-label="' + i + (i === 1 ? ' star' : ' stars') + '">&#9733;</button>');
+			}
+			group.addEventListener('click', function (e) {
+				var b = e.target.closest('[data-v]');
+				if (!b) { return; }
+				values[name] = Number(b.getAttribute('data-v'));
+				group.querySelectorAll('button').forEach(function (x) {
+					var on = Number(x.getAttribute('data-v')) <= values[name];
+					x.classList.toggle('on', on);
+					x.setAttribute('aria-checked', Number(x.getAttribute('data-v')) === values[name] ? 'true' : 'false');
+				});
+			});
+		});
+
+		function showAlert(msg, kind) {
+			alert.className = 'alert alert--' + (kind || 'error');
+			alert.textContent = msg;
+			alert.hidden = false;
+			alert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+		}
+
+		form.addEventListener('submit', function (e) {
+			e.preventDefault();
+			form.querySelectorAll('.field').forEach(function (f) {
+				f.classList.remove('has-error');
+				var m = f.querySelector('.err');
+				if (m) { m.remove(); }
+			});
+			alert.hidden = true;
+			if (!form.reportValidity()) { return; }
+			var body = {
+				order: form.elements.order.value.trim(), email: form.elements.email.value.trim(),
+				name: form.elements.name.value.trim(), location: form.elements.location.value.trim(),
+				text: form.elements.text.value.trim(), website: form.elements.website.value,
+				rating: values.rating, professionalism: values.professionalism, convenience: values.convenience
+			};
+			if (!body.rating) {
+				showAlert('Please choose an overall star rating.');
+				return;
+			}
+			var btn = $('#send-review');
+			btn.disabled = true;
+			fetch('api/review.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+				.then(function (r) { return r.json().catch(function () { return { error: 'Something went wrong. Please try again.' }; }); })
+				.then(function (res) {
+					btn.disabled = false;
+					if (res.ok) {
+						$('#review-wrap').innerHTML = '<div class="prose center"><h2>Thank you!</h2><p class="lead">Your review has been sent. ' +
+							'It will appear on the site once we\'ve checked it.</p><a class="btn" href="shop.html">Back to the shop</a></div>';
+						return;
+					}
+					if (res.fields) {
+						Object.keys(res.fields).forEach(function (k) {
+							var input = form.elements[k] || form.querySelector('[data-name="' + k + '"]');
+							var f = input && input.closest('.field');
+							if (f) {
+								f.classList.add('has-error');
+								f.insertAdjacentHTML('beforeend', '<p class="err">' + esc(res.fields[k]) + '</p>');
+							}
+						});
+					}
+					showAlert(res.error || 'Something went wrong. Please try again.');
+				})
+				.catch(function () {
+					btn.disabled = false;
+					showAlert('We couldn\'t reach the shop. Check your internet connection and try again.');
+				});
+		});
 	};
 
 	var LOCK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3H9z"/></svg>';

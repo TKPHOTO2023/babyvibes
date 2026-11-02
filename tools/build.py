@@ -197,7 +197,7 @@ def layout(meta, body):
   </div>
   {payments()}
   <div class="footer-base">
-   <span>&copy; {year} BabyVibes. Prices in South African rand, including VAT where applicable.</span>
+   <span>&copy; {year} BabyVibes is trading as Hostdigi (Pty) Ltd. Prices in South African rand, including VAT where applicable.</span>
    <span><a href="terms.html">Terms &amp; returns</a> &middot; <a href="privacy.html">Privacy</a></span>
   </div>
  </div>

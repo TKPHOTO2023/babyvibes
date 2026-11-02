@@ -285,6 +285,8 @@ function bv_send_order_emails( array $order ) {
 		. bv_order_summary( $order )
 		. "\n\nDelivering to\n" . bv_address( $c )
 		. "\n\nQuestions? Reply to this email or WhatsApp us on +{$shop['whatsapp']}.\n\n"
+		. "Once your order arrives, we'd love to hear what you think. It only takes a minute:\n"
+		. rtrim( bv_config()['site_url'], '/' ) . "/review.html?order={$order['id']}\n\n"
 		. "Love,\nThe {$shop['name']} team"
 	);
 }

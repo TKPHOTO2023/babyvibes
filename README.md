@@ -139,6 +139,20 @@ The footer's "Secure payment" strip shows Visa, Mastercard and the main South Af
 the real logos, download them from each bank's official brand or media page, save them in `assets/img/banks/`
 (see the README there for file names), and run `python3 tools/build.py`.
 
+## Reviews
+
+Only real customers can review. On `review.html` they enter their order number and the email they ordered with,
+and rate the shop overall, for professionalism and for convenience. Each order can be reviewed once. Every order
+confirmation email includes a link to the review page.
+
+New reviews **don't appear on the site automatically**. You get an email with the review and a block of text ready
+to copy. To publish a review, paste that block into the `reviews` list in `data/reviews.json` (separate entries
+with a comma) and upload the file. The homepage then shows the latest six, the average rating and a "Verified
+buyer" label. While there are no reviews, it shows a short "we're new" message instead.
+
+Pending reviews are also saved in `api/orders/reviews-pending.json`. Only publish genuine reviews, and don't edit
+what customers wrote; fake or altered reviews break the Consumer Protection Act.
+
 ## Orders
 
 Paid orders arrive by email. Each order is also saved as a file in `api/orders/` (or wherever `orders_dir` points)
