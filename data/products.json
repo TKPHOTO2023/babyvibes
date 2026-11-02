@@ -23,23 +23,31 @@
       "inStock": true,
       "badge": "New",
       "added": "2026-11-02",
-      "images": [],
-      "short": "Two soft silicone fruit feeders plus a mini freezer tray for breastmilk popsicles. Safe self-feeding and soothing relief for sore, teething gums.",
-      "description": "<p>Let your little one explore real food safely. Pop fresh fruit or soft vegetables into the silicone pouch and baby can suck, chew and gum away at it, getting all the taste while the bigger pieces stay inside the feeder.</p><p>When teething makes gums sore, freeze breastmilk, formula or fruit purée in the mini freezer tray and pop a cube into the feeder for cool, soothing relief. The handle is easy for little hands to hold, so baby can feed themselves while you enjoy your meal too.</p><p>The 2-pack comes with extra pouches, so there's always a clean one ready.</p>",
+      "images": [
+        "assets/img/products/silicone-baby-fruit-feeder-1.jpg",
+        "assets/img/products/silicone-baby-fruit-feeder-2.jpg",
+        "assets/img/products/silicone-baby-fruit-feeder-3.jpg",
+        "assets/img/products/silicone-baby-fruit-feeder-4.jpg",
+        "assets/img/products/silicone-baby-fruit-feeder-5.jpg",
+        "assets/img/products/silicone-baby-fruit-feeder-6.jpg",
+        "assets/img/products/silicone-baby-fruit-feeder-7.jpg"
+      ],
+      "short": "Two bear-handle fruit feeders with teats in 3 sizes, plus a freezer tray for breastmilk popsicles. Safe self-feeding and cool relief for teething gums.",
+      "description": "<p>Let your little one explore real food safely. Pop fresh fruit or soft vegetables into the silicone teat and baby can suck, chew and gum away at it, getting all the taste while bigger pieces stay inside the feeder.</p><p>When teething makes gums sore, freeze breastmilk, formula or fruit purée in the freezer tray and pop a cube into the feeder for cool, soothing relief. The little bear handle is easy for small hands to hold, so baby can feed themselves while you enjoy your meal too.</p><p>The feeders grow with your baby: swap between small, medium and large teats as they move from first tastes to bigger bites. Everything comes apart for easy cleaning and is dishwasher, hand-wash and boil safe.</p>",
       "features": [
-        "2 x baby fruit feeders with soft silicone pouches",
-        "Mini freezer tray for breastmilk or purée popsicles",
-        "Extra pouches, so there's always a spare",
+        "2 x fruit feeders with cute bear handles, in green and blue",
+        "Food-grade silicone teats in 3 sizes: S (4 to 6 months), M (6 to 9 months), L (10 to 24 months+)",
+        "Freezer tray with lid for breastmilk, formula or purée popsicles",
         "Cool frozen treats soothe sore, teething gums",
-        "Easy-grip handle for safe self-feeding",
-        "Use with fresh fruit, soft vegetables, breastmilk or formula"
+        "Silicone sealing ring and protective lid keep it clean in the nappy bag",
+        "Comes apart for cleaning: dishwasher, hand-wash and boil safe"
       ],
       "inTheBox": [
-        "2 x Silicone fruit feeders",
-        "1 x Mini freezer tray",
-        "Extra silicone pouches"
+        "2 x Fruit feeders with bear handles (green and blue)",
+        "6 x Silicone teats: 2 small, 2 medium, 2 large",
+        "1 x Freezer tray with lid"
       ],
-      "age": "For babies who are starting solids (usually from around 6 months). Check the age guidance on the packaging. Wash everything before first use, always stay with your baby while they use the feeder, and check the pouch before each use: replace it if it's torn or worn.",
+      "age": "From 4 months: use the size S teat from 4 to 6 months, M from 6 to 9 months and L from 10 months. Ask your clinic when your baby is ready for solids. Wash everything before first use, always stay with your baby while they use the feeder, and check the teat before each use: replace it if it's torn or worn.",
       "featured": true
     },
     {
