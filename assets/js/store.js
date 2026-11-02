@@ -36,7 +36,10 @@
 				fetch('data/shop.json', { cache: 'no-cache' }).then(function (r) { return r.json(); })
 			]).then(function (res) {
 				var bySlug = {};
-				res[0].products.forEach(function (p) { bySlug[p.slug] = p; });
+				res[0].products.forEach(function (p) {
+					if (!p.images || !p.images.length) { p.images = ['assets/img/photo-coming-soon.svg']; }
+					bySlug[p.slug] = p;
+				});
 				return { products: res[0].products, categories: res[0].categories, bySlug: bySlug, shop: res[1] };
 			});
 		}

@@ -7,9 +7,41 @@
     {
       "slug": "baby-gear",
       "name": "Baby gear"
+    },
+    {
+      "slug": "feeding",
+      "name": "Feeding"
     }
   ],
   "products": [
+    {
+      "slug": "silicone-baby-fruit-feeder-2-pack",
+      "name": "Silicone Baby Fruit Feeder 2-Pack with Mini Freezer Tray",
+      "category": "feeding",
+      "price": 759,
+      "compareAtPrice": null,
+      "inStock": true,
+      "badge": "New",
+      "added": "2026-11-02",
+      "images": [],
+      "short": "Two soft silicone fruit feeders plus a mini freezer tray for breastmilk popsicles. Safe self-feeding and soothing relief for sore, teething gums.",
+      "description": "<p>Let your little one explore real food safely. Pop fresh fruit or soft vegetables into the silicone pouch and baby can suck, chew and gum away at it, getting all the taste while the bigger pieces stay inside the feeder.</p><p>When teething makes gums sore, freeze breastmilk, formula or fruit purée in the mini freezer tray and pop a cube into the feeder for cool, soothing relief. The handle is easy for little hands to hold, so baby can feed themselves while you enjoy your meal too.</p><p>The 2-pack comes with extra pouches, so there's always a clean one ready.</p>",
+      "features": [
+        "2 x baby fruit feeders with soft silicone pouches",
+        "Mini freezer tray for breastmilk or purée popsicles",
+        "Extra pouches, so there's always a spare",
+        "Cool frozen treats soothe sore, teething gums",
+        "Easy-grip handle for safe self-feeding",
+        "Use with fresh fruit, soft vegetables, breastmilk or formula"
+      ],
+      "inTheBox": [
+        "2 x Silicone fruit feeders",
+        "1 x Mini freezer tray",
+        "Extra silicone pouches"
+      ],
+      "age": "For babies who are starting solids (usually from around 6 months). Check the age guidance on the packaging. Wash everything before first use, always stay with your baby while they use the feeder, and check the pouch before each use: replace it if it's torn or worn.",
+      "featured": true
+    },
     {
       "slug": "baby-support-chair-pink-cat",
       "name": "Baby Support Chair, Pink Cat Design",
