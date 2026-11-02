@@ -83,8 +83,45 @@ def fill(text):
         "free_from": money(delivery["freeFrom"]) if delivery.get("freeFrom") else "",
         "year": str(datetime.date.today().year),
     }
+    promo = SHOP.get("promo") or {}
+    values.update({f"promo_{k}": promo.get(k, "") for k in ("name", "headline", "text", "link")})
     text = re.sub(r"\{\{icon:(\w+)\}\}", lambda m: icon(m.group(1)), text)
     return re.sub(r"\{\{(\w+)\}\}", lambda m: values[m.group(1)], text)
+
+
+# Banks shown in the footer's secure payment strip. Drop each bank's official logo into
+# assets/img/banks/ as <slug>.svg, .png or .webp and it replaces the name badge on the next build.
+BANKS = [
+    ("absa", "Absa"),
+    ("african-bank", "African Bank"),
+    ("bank-zero", "Bank Zero"),
+    ("capitec", "Capitec"),
+    ("discovery-bank", "Discovery Bank"),
+    ("fnb", "FNB"),
+    ("investec", "Investec"),
+    ("nedbank", "Nedbank"),
+    ("standard-bank", "Standard Bank"),
+    ("tymebank", "TymeBank"),
+]
+CARDS = [("visa", "Visa"), ("mastercard", "Mastercard")]
+
+
+def badge(slug, name, folder):
+    for ext in ("svg", "png", "webp"):
+        if (ROOT / "assets" / "img" / folder / f"{slug}.{ext}").exists():
+            return f'<li class="pay-logo"><img src="assets/img/{folder}/{slug}.{ext}" alt="{name}" height="28" loading="lazy"></li>'
+    return f'<li class="pay-name">{name}</li>'
+
+
+def payments():
+    banks = "".join(badge(s, n, "banks") for s, n in BANKS)
+    cards = "".join(badge(s, n, "cards") for s, n in CARDS)
+    return f"""<section class="payments" aria-labelledby="pay-title">
+   <h2 id="pay-title">{icon("lock")} Secure payment</h2>
+   <p>Pay safely with Yoco using a card from any South African bank. Your card details are encrypted and never reach us.</p>
+   <ul class="pay-row" aria-label="Cards accepted">{cards}</ul>
+   <ul class="pay-row" aria-label="South African banks">{banks}</ul>
+  </section>"""
 
 
 def parse(path):
@@ -101,7 +138,15 @@ def layout(meta, body):
         f'<li><a href="{href}"{here if key == current else ""}>{label}</a></li>'
         for key, href, label in NAV)
     free = SHOP["delivery"].get("freeFrom")
-    announce = (f'<div class="announce">Free delivery on orders over {money(free)}</div>' if free else "")
+    free_text = f"Free delivery on orders over {money(free)}" if free else ""
+    promo = SHOP.get("promo")
+    if promo:
+        # store.js swaps this for a live countdown, and back to free_text once the promotion ends.
+        announce = (f'<div class="announce" data-promo-bar data-fallback="{free_text}">'
+                    f'<a href="{promo["link"]}"><strong>{promo["name"]} special</strong></a>'
+                    f'<span data-promo-label></span> <span data-countdown="compact"></span></div>')
+    else:
+        announce = f'<div class="announce">{free_text}</div>' if free_text else ""
     year = datetime.date.today().year
     return f"""<!doctype html>
 <html lang="en-ZA">
@@ -155,9 +200,10 @@ def layout(meta, body):
     </ul>
    </div>
   </div>
+  {payments()}
   <div class="footer-base">
    <span>&copy; {year} BabyVibes. Prices in South African rand, including VAT where applicable.</span>
-   <span><a href="terms.html">Terms &amp; returns</a> &middot; <a href="privacy.html">Privacy</a> &middot; Secure payments by Yoco</span>
+   <span><a href="terms.html">Terms &amp; returns</a> &middot; <a href="privacy.html">Privacy</a></span>
   </div>
  </div>
 </footer>

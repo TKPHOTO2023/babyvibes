@@ -51,7 +51,7 @@ Edit `data/shop.json`:
 - your email
 - your WhatsApp number in international format without the + (for example `27821234567`)
 - office hours
-- delivery prices: `flatRate` and `freeFrom` (set `freeFrom` to `0` for no free delivery)
+- delivery prices: `flatRate` (now R150) and `freeFrom` (now R750) (set `freeFrom` to `0` for no free delivery)
 
 The email and WhatsApp number also appear in the page footers and the contact page, so after changing them,
 rebuild the pages (`python3 tools/build.py`) and upload the `.html` files again.
@@ -116,6 +116,28 @@ needs its own webhook), and make one small real purchase to confirm.
 3. Upload the photos and `data/products.json`. The product appears on the homepage, shop, category and product
    pages straight away, with no rebuild. Check that the file is still valid JSON (paste it into jsonlint.com) if
    the shop stops showing products.
+
+## Black Friday and other promotions
+
+The `promo` block in `data/shop.json` drives the Black Friday countdown in the top bar of every page and in the
+dark banner on the homepage:
+
+- before `start`, it counts down to the start ("starts in")
+- between `start` and `end`, it counts down to the end ("ends in") with the `liveHeadline`
+- after `end`, it disappears by itself and the top bar goes back to the free-delivery message
+
+Dates are South African time (`+02:00`). Reuse it for any sale by changing the name, dates and text, then run
+`python3 tools/build.py`. Delete the whole `promo` block to remove it.
+
+To put products on special, set `price` to the sale price and `compareAtPrice` to the normal price in
+`data/products.json`. The old price shows crossed out, and checkout charges the sale price. Remember to change
+them back when the sale ends.
+
+## Bank logos in the footer
+
+The footer's "Secure payment" strip shows Visa, Mastercard and the main South African banks as name badges. To use
+the real logos, download them from each bank's official brand or media page, save them in `assets/img/banks/`
+(see the README there for file names), and run `python3 tools/build.py`.
 
 ## Orders
 

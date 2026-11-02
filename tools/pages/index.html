@@ -17,6 +17,21 @@ nav: home
  </div>
 </section>
 
+<section class="promo" data-promo-section hidden>
+ <div class="wrap promo-inner">
+  <div>
+   <span class="promo-tag">{{promo_name}} special</span>
+   <h2 data-promo-headline>{{promo_headline}}</h2>
+   <p>{{promo_text}}</p>
+  </div>
+  <div class="promo-count">
+   <p class="promo-label" data-promo-label></p>
+   <div data-countdown="full" class="countdown" role="timer" aria-live="off"></div>
+   <a class="btn btn--sun" href="{{promo_link}}">Shop the specials</a>
+  </div>
+ </div>
+</section>
+
 <section class="section section--white" style="padding:48px 0">
  <div class="wrap features">
   <div class="feature"><div class="icon">{{icon:truck}}</div><h3>Fast delivery</h3><p>Tracked delivery across South Africa. Free over {{free_from}}.</p></div>

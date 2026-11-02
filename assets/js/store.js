@@ -448,6 +448,55 @@
 
 	var LOCK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3H9z"/></svg>';
 
+
+	// Black Friday (or any promotion in data/shop.json): countdown to the start, then to the end.
+
+	function promo(d) {
+		var pr = d.shop.promo;
+		var bar = $('[data-promo-bar]');
+		var section = $('[data-promo-section]');
+		if (!pr) { return; }
+		var start = Date.parse(pr.start);
+		var end = Date.parse(pr.end);
+		var boxes = document.querySelectorAll('[data-countdown]');
+		var labels = document.querySelectorAll('[data-promo-label]');
+		var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+
+		function tick() {
+			var now = Date.now();
+			if (isNaN(start) || isNaN(end) || now >= end) {
+				if (bar) { bar.textContent = bar.getAttribute('data-fallback') || ''; bar.hidden = !bar.textContent; }
+				if (section) { section.hidden = true; }
+				clearInterval(timer);
+				return;
+			}
+			var live = now >= start;
+			var left = Math.max(0, Math.floor(((live ? end : start) - now) / 1000));
+			var dd = Math.floor(left / 86400);
+			var hh = Math.floor(left % 86400 / 3600);
+			var mm = Math.floor(left % 3600 / 60);
+			var ss = left % 60;
+			labels.forEach(function (el) {
+				el.textContent = el.closest('[data-promo-bar]') ? (live ? ' ends in' : ' starts in') : (live ? 'Ends in' : 'Starts in');
+			});
+			var head = $('[data-promo-headline]');
+			if (head && live && pr.liveHeadline) { head.textContent = pr.liveHeadline; }
+			boxes.forEach(function (el) {
+				if (el.getAttribute('data-countdown') === 'compact') {
+					el.textContent = (dd ? dd + 'd ' : '') + pad(hh) + 'h ' + pad(mm) + 'm ' + pad(ss) + 's';
+				} else {
+					el.innerHTML = [[dd, 'Days'], [hh, 'Hours'], [mm, 'Mins'], [ss, 'Secs']].map(function (u, i) {
+						return '<span class="unit"><b>' + (i ? pad(u[0]) : u[0]) + '</b><small>' + u[1] + '</small></span>';
+					}).join('');
+					el.setAttribute('aria-label', dd + ' days, ' + hh + ' hours and ' + mm + ' minutes');
+				}
+			});
+			if (section) { section.hidden = false; }
+		}
+		var timer = setInterval(tick, 1000);
+		tick();
+	}
+
 	// Start ---------------------------------------------------------------------------------
 
 	var toggle = $('.menu-toggle');
@@ -458,6 +507,7 @@
 		});
 	}
 	updateCount();
+	data().then(promo).catch(function () {});
 	window.addEventListener('storage', function (e) { if (e.key === CART_KEY) { updateCount(); } });
 
 	if (pages[page]) {

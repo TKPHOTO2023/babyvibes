@@ -17,7 +17,7 @@
 </head>
 <body data-page="home">
 <a class="sr-only" href="#main">Skip to content</a>
-<div class="announce">Free delivery on orders over R750</div>
+<div class="announce" data-promo-bar data-fallback="Free delivery on orders over R750"><a href="shop.html"><strong>Black Friday special</strong></a><span data-promo-label></span> <span data-countdown="compact"></span></div>
 <header class="site-header">
  <div class="wrap">
   <a class="logo" href="index.html" aria-label="BabyVibes home"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="#FFE3D6"/><rect x="12" y="8" width="16" height="22" rx="8" fill="#6CC285" stroke="#2E2A3B" stroke-width="2"/><circle cx="17" cy="17" r="1.8" fill="#2E2A3B"/><circle cx="23" cy="17" r="1.8" fill="#2E2A3B"/><path d="M16.5 21.5q3.5 3 7 0" fill="none" stroke="#2E2A3B" stroke-width="1.8" stroke-linecap="round"/><rect x="10" y="28" width="20" height="6" rx="2" fill="#FFB86B" stroke="#2E2A3B" stroke-width="2"/></svg><span>Baby<span>Vibes</span></span></a>
@@ -78,6 +78,20 @@
 </svg></div>
  </div>
 </section>
+<section class="promo" data-promo-section hidden>
+ <div class="wrap promo-inner">
+  <div>
+   <span class="promo-tag">Black Friday special</span>
+   <h2 data-promo-headline>Black Friday specials are coming</h2>
+   <p>Our best prices of the year on baby favourites. Don't miss out.</p>
+  </div>
+  <div class="promo-count">
+   <p class="promo-label" data-promo-label></p>
+   <div data-countdown="full" class="countdown" role="timer" aria-live="off"></div>
+   <a class="btn btn--sun" href="shop.html">Shop the specials</a>
+  </div>
+ </div>
+</section>
 <section class="section section--white" style="padding:48px 0">
  <div class="wrap features">
   <div class="feature"><div class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h11v9H3zM14 9h4l3 3v3h-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="7" cy="17.5" r="2" fill="currentColor"/><circle cx="17" cy="17.5" r="2" fill="currentColor"/></svg></div><h3>Fast delivery</h3><p>Tracked delivery across South Africa. Free over R750.</p></div>
@@ -121,7 +135,7 @@
  <div class="narrow">
   <div class="section-head"><span class="kicker">Questions</span><h2>Good to know</h2></div>
   <details><summary>How long does delivery take?</summary><div><p>We deliver across South Africa. Orders placed before 12:00 on a weekday are packed the same day, and most arrive within 2 to 4 working days in the main centres. You'll get a tracking number by email.</p></div></details>
-  <details><summary>How much is delivery?</summary><div><p>Delivery is R99, and free on orders over R750. You'll see the exact amount in your cart before you pay.</p></div></details>
+  <details><summary>How much is delivery?</summary><div><p>Delivery is R150, and free on orders over R750. You'll see the exact amount in your cart before you pay.</p></div></details>
   <details><summary>How do I pay?</summary><div><p>Pay securely by card or Instant EFT through Yoco, a South African payment provider. We never see or store your card details.</p></div></details>
   <details><summary>Are your products safe for my baby?</summary><div><p>We choose every product with little ones in mind. Each product page shows the age it's suitable for, so check it before you buy, and always supervise play.</p></div></details>
   <details><summary>What if something is wrong with my order?</summary><div><p>Message us on WhatsApp or email within 7 days of delivery and we'll sort it out with a replacement or a refund. See <a href="terms.html">Terms &amp; returns</a> for the details.</p></div></details>
@@ -155,9 +169,15 @@
     </ul>
    </div>
   </div>
+  <section class="payments" aria-labelledby="pay-title">
+   <h2 id="pay-title"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3H9z"/></svg> Secure payment</h2>
+   <p>Pay safely with Yoco using a card from any South African bank. Your card details are encrypted and never reach us.</p>
+   <ul class="pay-row" aria-label="Cards accepted"><li class="pay-name">Visa</li><li class="pay-name">Mastercard</li></ul>
+   <ul class="pay-row" aria-label="South African banks"><li class="pay-name">Absa</li><li class="pay-name">African Bank</li><li class="pay-name">Bank Zero</li><li class="pay-name">Capitec</li><li class="pay-name">Discovery Bank</li><li class="pay-name">FNB</li><li class="pay-name">Investec</li><li class="pay-name">Nedbank</li><li class="pay-name">Standard Bank</li><li class="pay-name">TymeBank</li></ul>
+  </section>
   <div class="footer-base">
    <span>&copy; 2026 BabyVibes. Prices in South African rand, including VAT where applicable.</span>
-   <span><a href="terms.html">Terms &amp; returns</a> &middot; <a href="privacy.html">Privacy</a> &middot; Secure payments by Yoco</span>
+   <span><a href="terms.html">Terms &amp; returns</a> &middot; <a href="privacy.html">Privacy</a></span>
   </div>
  </div>
 </footer>
