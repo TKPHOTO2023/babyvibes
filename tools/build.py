@@ -92,6 +92,7 @@ def fill(text):
 # Banks and cards shown in the footer's secure payment strip. Drop each bank's official logo into
 # assets/img/banks/ as <slug>.svg, .png or .webp and it replaces the name badge on the next build.
 BANKS = [
+    ("absa", "Absa"),
     ("fnb", "FNB"),
     ("capitec", "Capitec"),
     ("tymebank", "TymeBank"),
