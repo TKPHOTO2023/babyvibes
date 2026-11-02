@@ -3,9 +3,42 @@
     {
       "slug": "toys",
       "name": "Toys"
+    },
+    {
+      "slug": "baby-gear",
+      "name": "Baby gear"
     }
   ],
   "products": [
+    {
+      "slug": "baby-support-chair-pink-cat",
+      "name": "Baby Support Chair, Pink Cat Design",
+      "category": "baby-gear",
+      "price": 650,
+      "compareAtPrice": null,
+      "inStock": true,
+      "badge": "New",
+      "added": "2026-11-02",
+      "images": [
+        "assets/img/products/baby-support-chair-pink-cat-1.jpg",
+        "assets/img/products/baby-support-chair-pink-cat-2.jpg",
+        "assets/img/products/baby-support-chair-pink-cat-3.jpg"
+      ],
+      "short": "A soft, cuddly infant seat with a cute pink cat face that helps your little one sit up, play and see the world.",
+      "description": "<p>Once your baby can hold their head up, they want to sit up and join in. This plush support chair gives them a cosy, padded seat with a high backrest and rounded armrests that wrap around their body, so they can sit upright while they play, watch you or practise their balance.</p><p>The pink cat face, little paws and striped lining make it a sweet addition to any nursery or lounge, and it's light enough to move from room to room. It makes a lovely baby shower gift too.</p>",
+      "features": [
+        "Soft plush seat with a high, padded backrest",
+        "Rounded armrests that wrap around baby for support",
+        "Two leg openings so baby sits comfortably",
+        "Cute pink cat face, paws and “Spoil you” embroidery",
+        "Lightweight, so it's easy to move around the house"
+      ],
+      "inTheBox": [
+        "1 x Baby Support Chair, Pink Cat Design"
+      ],
+      "age": "For babies who can hold their head up steadily. Check the age and weight guidance on the packaging. Only use it on the floor, never on a table, bed, sofa or other raised surface, and never near water. Always stay with your baby while they use it, and don't let them sleep in it.",
+      "featured": true
+    },
     {
       "slug": "talking-cactus",
       "name": "Talking Cactus",
