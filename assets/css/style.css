@@ -342,7 +342,7 @@ details ul { padding-left: 20px; margin: 0 0 1em; }
 .payments h2 svg { width: 18px; height: 18px; color: var(--sun); }
 .payments p { color: #B9B4C6; max-width: 560px; margin: 0 auto 16px; }
 .site-footer .pay-row { list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 0; margin: 0 0 10px !important; }
-.pay-row li { background: #fff; color: var(--ink); border-radius: 8px; min-height: 40px; padding: 6px 12px; display: flex; align-items: center; font-weight: 800; font-size: 0.85rem; }
+.pay-row li { background: #fff; color: var(--ink); border-radius: 8px; height: 46px; min-width: 88px; padding: 6px 14px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.88rem; }
 .pay-row img { height: 28px; width: auto; }
 .site-footer { background: var(--ink); color: #E9E6F0; padding: 56px 0 28px; font-size: 0.96rem; }
 .site-footer a { color: #E9E6F0; }

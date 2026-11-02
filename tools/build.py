@@ -89,21 +89,16 @@ def fill(text):
     return re.sub(r"\{\{(\w+)\}\}", lambda m: values[m.group(1)], text)
 
 
-# Banks shown in the footer's secure payment strip. Drop each bank's official logo into
+# Banks and cards shown in the footer's secure payment strip. Drop each bank's official logo into
 # assets/img/banks/ as <slug>.svg, .png or .webp and it replaces the name badge on the next build.
 BANKS = [
-    ("absa", "Absa"),
-    ("african-bank", "African Bank"),
-    ("bank-zero", "Bank Zero"),
-    ("capitec", "Capitec"),
-    ("discovery-bank", "Discovery Bank"),
     ("fnb", "FNB"),
-    ("investec", "Investec"),
+    ("capitec", "Capitec"),
+    ("tymebank", "TymeBank"),
     ("nedbank", "Nedbank"),
     ("standard-bank", "Standard Bank"),
-    ("tymebank", "TymeBank"),
 ]
-CARDS = [("visa", "Visa"), ("mastercard", "Mastercard")]
+CARDS = [("mastercard", "Mastercard"), ("visa", "Visa")]
 
 
 def badge(slug, name, folder):
@@ -119,8 +114,7 @@ def payments():
     return f"""<section class="payments" aria-labelledby="pay-title">
    <h2 id="pay-title">{icon("lock")} Secure payment</h2>
    <p>Pay safely with Yoco using a card from any South African bank. Your card details are encrypted and never reach us.</p>
-   <ul class="pay-row" aria-label="Cards accepted">{cards}</ul>
-   <ul class="pay-row" aria-label="South African banks">{banks}</ul>
+   <ul class="pay-row" aria-label="Banks and cards accepted">{banks}{cards}</ul>
   </section>"""
 
 

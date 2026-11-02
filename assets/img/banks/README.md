@@ -1,9 +1,15 @@
 # Bank logos
 
-Save each bank's official logo here (download it from the bank's own media or brand page) with these names,
-then run `python3 tools/build.py`. Each logo replaces that bank's name badge in the footer.
+Save each bank's official logo here, with exactly these file names, then run `python3 tools/build.py`
+(or ask Claude to). Each logo replaces that bank's name badge in the footer.
 
-absa · african-bank · bank-zero · capitec · discovery-bank · fnb · investec · nedbank · standard-bank · tymebank
+| Bank | File name |
+|---|---|
+| FNB | `fnb.svg` (or `.png` / `.webp`) |
+| Capitec | `capitec.svg` |
+| TymeBank | `tymebank.svg` |
+| Nedbank | `nedbank.svg` |
+| Standard Bank | `standard-bank.svg` |
 
-Use `.svg` (best), `.png` or `.webp`, for example `capitec.svg`. Logos show 28px tall on a white tile.
-Card logos (`visa`, `mastercard`) go in `assets/img/cards/` the same way.
+SVG is best; otherwise a PNG at least 200px tall with a transparent or white background. Logos show 28px tall on
+a white tile. Download them from each bank's own website (brand, media or press page).
