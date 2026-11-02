@@ -1,0 +1,38 @@
+{
+  "categories": [
+    {
+      "slug": "toys",
+      "name": "Toys"
+    }
+  ],
+  "products": [
+    {
+      "slug": "talking-cactus",
+      "name": "Talking Cactus",
+      "category": "toys",
+      "price": 349,
+      "compareAtPrice": null,
+      "inStock": true,
+      "badge": "New",
+      "added": "2026-11-02",
+      "images": [
+        "assets/img/products/talking-cactus.svg"
+      ],
+      "short": "The cheeky little cactus that repeats what you say, dances, sings and lights up. Giggles guaranteed.",
+      "description": "<p>Say something and the Talking Cactus says it right back in a giggly voice, then wiggles and dances. Switch to music mode for a playlist of catchy songs with flashing lights. It's soft, cheeky and impossible not to smile at.</p><p>Little ones love hearing their own voice played back, so it turns babbling into a game. It's great for tummy time, car trips and nappy changes, and it gets a big reaction as a baby shower gift.</p>",
+      "features": [
+        "Repeats what you say in a funny voice",
+        "Sings and dances",
+        "Colourful lights",
+        "USB rechargeable, so no batteries to buy",
+        "Volume switch with a quieter setting"
+      ],
+      "inTheBox": [
+        "1 x Talking Cactus",
+        "1 x USB charging cable"
+      ],
+      "age": "Check the age rating on the packaging. Always supervise play and don't leave it in a cot.",
+      "featured": true
+    }
+  ]
+}

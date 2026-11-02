@@ -1,0 +1,12 @@
+{
+  "name": "BabyVibes",
+  "currency": "ZAR",
+  "email": "hello@babyvibes.co.za",
+  "whatsapp": "27000000000",
+  "hours": "Monday to Friday, 08:00 to 17:00",
+  "delivery": {
+    "flatRate": 99,
+    "freeFrom": 750,
+    "note": "Tracked delivery across South Africa, usually 2 to 4 working days in the main centres."
+  }
+}

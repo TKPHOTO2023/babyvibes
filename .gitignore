@@ -1,0 +1,9 @@
+# Secret keys
+api/config.php
+# Customer orders and the saved webhook secret
+api/orders/*
+!api/orders/.htaccess
+!api/orders/index.html
+__pycache__/
+tests/orders/
+tests/*.log

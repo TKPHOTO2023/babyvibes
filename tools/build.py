@@ -1,0 +1,181 @@
+#!/usr/bin/env python3
+"""Build the BabyVibes pages.
+
+Each page's content lives in tools/pages/<name>.html. This script wraps it in the shared
+header and footer below and writes <name>.html to the site root.
+
+Run it after changing a page, the header/footer, or the contact details in data/shop.json:
+
+    python3 tools/build.py
+
+Products do NOT need a rebuild: they're read from data/products.json in the browser.
+
+Placeholders you can use in pages:
+    {{cactus}}            the Talking Cactus illustration
+    {{icon:NAME}}         an icon (truck, lock, heart, chat, star, gift, mail)
+    {{email}} {{whatsapp}} {{whatsapp_display}} {{hours}}
+    {{flat_rate}} {{free_from}}   delivery prices from data/shop.json, e.g. R99
+    {{year}}
+"""
+import datetime
+import json
+import re
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+PAGES = Path(__file__).resolve().parent / "pages"
+SHOP = json.loads((ROOT / "data" / "shop.json").read_text())
+
+NAV = [
+    ("home", "index.html", "Home"),
+    ("shop", "shop.html", "Shop"),
+    ("about", "about.html", "About"),
+    ("faq", "faq.html", "FAQ & Delivery"),
+    ("contact", "contact.html", "Contact"),
+]
+
+ICONS = {
+    "truck": '<path d="M3 6h11v9H3zM14 9h4l3 3v3h-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="7" cy="17.5" r="2" fill="currentColor"/><circle cx="17" cy="17.5" r="2" fill="currentColor"/>',
+    "lock": '<path fill="currentColor" d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3H9z"/>',
+    "heart": '<path fill="currentColor" d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.6 4.5c2.1 0 3.6 1.2 4.4 2.6.8-1.4 2.3-2.6 4.4-2.6 3.6 0 5.7 3.8 4.2 7.2C19.5 16.4 12 21 12 21z"/>',
+    "chat": '<path fill="currentColor" d="M12 3C6.5 3 2 6.8 2 11.5c0 2.4 1.2 4.6 3.1 6.1L4 21l4.2-1.9c1.2.4 2.5.6 3.8.6 5.5 0 10-3.8 10-8.5S17.5 3 12 3z"/>',
+    "star": '<path fill="currentColor" d="M12 2.5l2.9 6 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.2 1.3-6.6L2.5 9.3l6.6-.8z"/>',
+    "gift": '<path d="M4 10h16v11H4zM2 6h20v4H2zM12 6v15M12 6c-1.5-3-5-3.5-5-1.2C7 6 9.5 6 12 6zm0 0c1.5-3 5-3.5 5-1.2C17 6 14.5 6 12 6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+    "mail": '<path d="M3 5h18v14H3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M3 6l9 7 9-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+}
+
+LOGO = ('<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="#FFE3D6"/>'
+        '<rect x="12" y="8" width="16" height="22" rx="8" fill="#6CC285" stroke="#2E2A3B" stroke-width="2"/>'
+        '<circle cx="17" cy="17" r="1.8" fill="#2E2A3B"/><circle cx="23" cy="17" r="1.8" fill="#2E2A3B"/>'
+        '<path d="M16.5 21.5q3.5 3 7 0" fill="none" stroke="#2E2A3B" stroke-width="1.8" stroke-linecap="round"/>'
+        '<rect x="10" y="28" width="20" height="6" rx="2" fill="#FFB86B" stroke="#2E2A3B" stroke-width="2"/></svg>')
+CART_ICON = ('<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.5L20.5 8H6.2" '
+             'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+             '<circle cx="10" cy="20" r="1.5" fill="currentColor"/><circle cx="17" cy="20" r="1.5" fill="currentColor"/></svg>')
+MENU_ICON = ('<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" '
+             'stroke-width="2.2" stroke-linecap="round"/></svg>')
+
+
+def money(rand):
+    return "R" + f"{rand:,.0f}".replace(",", " ")
+
+
+def wa_display(number):
+    n = str(number)
+    if n.startswith("27") and len(n) == 11:
+        return f"0{n[2:4]} {n[4:7]} {n[7:]}"
+    return "+" + n
+
+
+def icon(name):
+    return f'<svg viewBox="0 0 24 24" aria-hidden="true">{ICONS[name]}</svg>'
+
+
+def fill(text):
+    delivery = SHOP["delivery"]
+    values = {
+        "cactus": (ROOT / "tools" / "cactus.svg").read_text().strip(),
+        "email": SHOP["email"],
+        "whatsapp": SHOP["whatsapp"],
+        "whatsapp_display": wa_display(SHOP["whatsapp"]),
+        "hours": SHOP["hours"],
+        "flat_rate": money(delivery["flatRate"]),
+        "free_from": money(delivery["freeFrom"]) if delivery.get("freeFrom") else "",
+        "year": str(datetime.date.today().year),
+    }
+    text = re.sub(r"\{\{icon:(\w+)\}\}", lambda m: icon(m.group(1)), text)
+    return re.sub(r"\{\{(\w+)\}\}", lambda m: values[m.group(1)], text)
+
+
+def parse(path):
+    raw = path.read_text()
+    m = re.match(r"---\n(.*?)\n---\n", raw, re.S)
+    meta = dict(line.split(": ", 1) for line in m.group(1).splitlines())
+    return meta, raw[m.end():]
+
+
+def layout(meta, body):
+    current = meta.get("nav", "")
+    here = ' aria-current="page"'
+    nav = "".join(
+        f'<li><a href="{href}"{here if key == current else ""}>{label}</a></li>'
+        for key, href, label in NAV)
+    free = SHOP["delivery"].get("freeFrom")
+    announce = (f'<div class="announce">Free delivery on orders over {money(free)}</div>' if free else "")
+    year = datetime.date.today().year
+    return f"""<!doctype html>
+<html lang="en-ZA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{meta["title"]}</title>
+<meta name="description" content="{meta["description"]}">
+<meta property="og:title" content="{meta["title"]}">
+<meta property="og:description" content="{meta["description"]}">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#FFF1EA">
+{'<meta name="robots" content="noindex">' if meta.get("noindex") else ""}
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="{meta["page"]}">
+<a class="sr-only" href="#main">Skip to content</a>
+{announce}
+<header class="site-header">
+ <div class="wrap">
+  <a class="logo" href="index.html" aria-label="BabyVibes home">{LOGO}<span>Baby<span>Vibes</span></span></a>
+  <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">{MENU_ICON}</button>
+  <nav class="nav" id="site-nav" aria-label="Main"><ul>{nav}</ul></nav>
+  <a class="cart-link" href="cart.html" aria-label="Cart">{CART_ICON}<span class="cart-count" data-count="0">0</span></a>
+ </div>
+</header>
+<main id="main">
+{fill(body).strip()}
+</main>
+<footer class="site-footer">
+ <div class="wrap">
+  <div class="footer-grid">
+   <div>
+    <a class="logo" href="index.html">{LOGO}<span>Baby<span>Vibes</span></span></a>
+    <p>Fun toys and baby goodies, picked by moms and delivered across South Africa.</p>
+   </div>
+   <div>
+    <h2>Shop</h2>
+    <ul><li><a href="shop.html">All products</a></li><li><a href="cart.html">Your cart</a></li><li><a href="faq.html">FAQ &amp; Delivery</a></li></ul>
+   </div>
+   <div>
+    <h2>Help</h2>
+    <ul>
+     <li><a href="https://wa.me/{SHOP["whatsapp"]}" rel="noopener">WhatsApp {wa_display(SHOP["whatsapp"])}</a></li>
+     <li><a href="mailto:{SHOP["email"]}">{SHOP["email"]}</a></li>
+     <li><a href="contact.html">Contact us</a></li>
+    </ul>
+   </div>
+  </div>
+  <div class="footer-base">
+   <span>&copy; {year} BabyVibes. Prices in South African rand, including VAT where applicable.</span>
+   <span><a href="terms.html">Terms &amp; returns</a> &middot; <a href="privacy.html">Privacy</a> &middot; Secure payments by Yoco</span>
+  </div>
+ </div>
+</footer>
+<script src="assets/js/store.js" defer></script>
+</body>
+</html>
+"""
+
+
+def main():
+    for path in sorted(PAGES.glob("*.html")):
+        meta, body = parse(path)
+        out = ROOT / path.name
+        html = layout(meta, body)
+        html = "\n".join(line for line in html.splitlines() if line.strip()) + "\n"
+        out.write_text(html)
+        print("wrote", out.name)
+
+
+if __name__ == "__main__":
+    main()
