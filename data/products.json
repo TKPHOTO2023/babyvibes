@@ -16,22 +16,24 @@
       "badge": "New",
       "added": "2026-11-02",
       "images": [
-        "assets/img/products/talking-cactus.svg"
+        "assets/img/products/talking-cactus-1.jpg",
+        "assets/img/products/talking-cactus-2.jpg",
+        "assets/img/products/talking-cactus-3.jpg",
+        "assets/img/products/talking-cactus-4.jpg"
       ],
-      "short": "The cheeky little cactus that repeats what you say, dances, sings and lights up. Giggles guaranteed.",
-      "description": "<p>Say something and the Talking Cactus says it right back in a giggly voice, then wiggles and dances. Switch to music mode for a playlist of catchy songs with flashing lights. It's soft, cheeky and impossible not to smile at.</p><p>Little ones love hearing their own voice played back, so it turns babbling into a game. It's great for tummy time, car trips and nappy changes, and it gets a big reaction as a baby shower gift.</p>",
+      "short": "The cheeky dancing cactus that repeats what you say, sings, sways and lights up. Giggles guaranteed.",
+      "description": "<p>Press the button and the Talking Cactus sings, sways to the music and lights up in bright colours. Press again for the next song. Pause the music, say something, and it repeats it right back in a funny voice.</p><p>Little ones love hearing their own voice played back, so it turns babbling into a game. It's great for tummy time, car trips and nappy changes, and it gets a big reaction as a baby shower gift.</p>",
       "features": [
         "Repeats what you say in a funny voice",
-        "Sings and dances",
-        "Colourful lights",
-        "USB rechargeable, so no batteries to buy",
-        "Volume switch with a quieter setting"
+        "Sings and sways to the music",
+        "Colourful flashing lights",
+        "Soft knitted plush with big cartoon eyes, in a cute pot",
+        "Runs on 3 x AA batteries"
       ],
       "inTheBox": [
-        "1 x Talking Cactus",
-        "1 x USB charging cable"
+        "1 x Talking Cactus"
       ],
-      "age": "Check the age rating on the packaging. Always supervise play and don't leave it in a cot.",
+      "age": "Check the age rating on the packaging. The battery cover is closed with a screw: keep it closed, always supervise play, and don't leave the toy in a cot.",
       "featured": true
     }
   ]

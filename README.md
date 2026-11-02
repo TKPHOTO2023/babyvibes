@@ -88,14 +88,15 @@ needs its own webhook), and make one small real purchase to confirm.
 - [ ] Your business name, registration and address in `terms.html` (required by the ECTA). Have the terms and
       privacy drafts checked, and remove the "Draft" lines.
 - [ ] Delivery times and returns wording match what you actually offer
-- [ ] Real product photos
-- [ ] The Talking Cactus details match your stock: features, the age rating from the box, and the songs (some
-      talking cactus toys have shipped with unsuitable lyrics)
+- [ ] The Talking Cactus details match your stock: it's listed as running on 3 x AA batteries. Say on the product
+      whether batteries are included, add the age rating from the box, and listen to the songs (some talking
+      cactus toys have shipped with unsuitable lyrics)
 
 ## Adding a product
 
-1. Put the photos in `assets/img/products/`. Square JPGs about 1000 × 1000 px under 300 KB work best; name them
-   like `soft-bunny-1.jpg`.
+1. Put the photos in `assets/img/products/`. Square JPGs about 1000 × 1000 px under 300 KB work best. Name them
+   like `soft-bunny-1.jpg`, using lowercase and dashes with no spaces (GitHub uploads called `s-zoom (1).jpg` need
+   renaming).
 2. Add an entry to `products` in `data/products.json`. Copy the Talking Cactus entry and change:
 
    | Field | What it does |
