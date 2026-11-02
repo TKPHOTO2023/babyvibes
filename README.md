@@ -112,6 +112,7 @@ needs its own webhook), and make one small real purchase to confirm.
    | `images` | Photo paths. The first is the main photo |
    | `short`, `description` | One-line summary, and the longer description (HTML) |
    | `features`, `inTheBox`, `age` | Lists and safety note shown on the product page (optional) |
+   | `options` | Optional choice such as colour or size, which the shopper must pick before adding to the cart. Each value can have its own photo (shown when picked) and a `swatch` colour. See the 9-piece feeding set for an example. The choice appears in the cart, at checkout and in the order email |
 
 3. Upload the photos and `data/products.json`. The product appears on the homepage, shop, category and product
    pages straight away, with no rebuild. Check that the file is still valid JSON (paste it into jsonlint.com) if

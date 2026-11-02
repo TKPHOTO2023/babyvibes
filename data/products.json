@@ -15,6 +15,88 @@
   ],
   "products": [
     {
+      "slug": "silicone-baby-feeding-set-9-piece",
+      "name": "9-Piece Silicone Baby Feeding Set",
+      "category": "feeding",
+      "price": 689,
+      "compareAtPrice": null,
+      "inStock": true,
+      "badge": "New",
+      "added": "2026-11-02",
+      "images": [
+        "assets/img/products/silicone-feeding-set-1.jpg",
+        "assets/img/products/silicone-feeding-set-2.jpg",
+        "assets/img/products/silicone-feeding-set-3.jpg",
+        "assets/img/products/silicone-feeding-set-4.jpg",
+        "assets/img/products/silicone-feeding-set-5.jpg",
+        "assets/img/products/silicone-feeding-set-6.jpg",
+        "assets/img/products/silicone-feeding-set-7.jpg",
+        "assets/img/products/silicone-feeding-set-8.jpg",
+        "assets/img/products/silicone-feeding-set-9.jpg",
+        "assets/img/products/silicone-feeding-set-10.jpg",
+        "assets/img/products/silicone-feeding-set-11.jpg"
+      ],
+      "options": {
+        "name": "Colour",
+        "values": [
+          {
+            "value": "Pink",
+            "image": "assets/img/products/silicone-feeding-set-1.jpg",
+            "swatch": "#F5AFB6"
+          },
+          {
+            "value": "Dusty rose",
+            "image": "assets/img/products/silicone-feeding-set-7.jpg",
+            "swatch": "#B57579"
+          },
+          {
+            "value": "Lilac",
+            "image": "assets/img/products/silicone-feeding-set-8.jpg",
+            "swatch": "#987EAB"
+          },
+          {
+            "value": "Sage green",
+            "image": "assets/img/products/silicone-feeding-set-9.jpg",
+            "swatch": "#759076"
+          },
+          {
+            "value": "Blue",
+            "image": "assets/img/products/silicone-feeding-set-10.jpg",
+            "swatch": "#496E9D"
+          },
+          {
+            "value": "Beige",
+            "image": "assets/img/products/silicone-feeding-set-11.jpg",
+            "swatch": "#CEC1AB"
+          }
+        ]
+      },
+      "short": "Everything for mealtimes in one matching set: suction plate and bowl, sippy cup, waterproof bib and two sets of spoons and forks. BPA-free silicone in six soft colours.",
+      "description": "<p>Make mealtimes easier (and a lot less messy) with this complete 9-piece feeding set. The divided plate and the bowl have large suction bases that grip the high chair tray, so they stay put when little hands get busy. The soft, waterproof bib has a deep pocket that catches the crumbs and adjusts as your baby grows.</p><p>It comes with two sets of spoons and forks: short chewy silicone ones with a choke guard for first self-feeding (they soothe sore gums too), and bigger wooden-handle ones for toddlers up to about 4 years. The sippy cup with straw lid helps little ones learn to drink by themselves.</p><p>Made of 100% food-grade silicone that is BPA-free, PVC-free and phthalate-free. It's microwave, dishwasher and fridge safe and can be sterilised in boiling water. Choose from pink, dusty rose, lilac, sage green, blue or beige.</p>",
+      "features": [
+        "9 matching pieces for every meal, from first tastes to toddler",
+        "Plate and bowl with large suction bases that stay put on the tray",
+        "Divided plate keeps foods separate",
+        "Waterproof bib with a deep crumb-catcher pocket and adjustable neck",
+        "Sippy cup with straw lid",
+        "Chewy silicone spoon and fork with choke guard, plus wooden-handle spoon and fork for toddlers up to about 48 months",
+        "100% food-grade silicone: BPA-free, PVC-free and phthalate-free",
+        "Microwave, dishwasher and fridge safe; can be sterilised in boiling water",
+        "Sizes: bib 23 x 30 cm, plate 19.5 cm across, bowl 11.5 cm across, cup 7.5 x 7 cm"
+      ],
+      "inTheBox": [
+        "1 x Suction divided plate",
+        "1 x Suction bowl",
+        "1 x Lid",
+        "1 x Sippy cup with straw lid",
+        "1 x Waterproof bib",
+        "1 x Chewy silicone spoon and 1 x fork",
+        "1 x Wooden-handle spoon and 1 x fork"
+      ],
+      "age": "For babies starting solids and toddlers. Always stay with your child while they eat, and press the suction bases onto a clean, flat, smooth surface. Check the pieces before each use and replace any that are damaged.",
+      "featured": true
+    },
+    {
       "slug": "silicone-baby-fruit-feeder-2-pack",
       "name": "Silicone Baby Fruit Feeder 2-Pack with Mini Freezer Tray",
       "category": "feeding",

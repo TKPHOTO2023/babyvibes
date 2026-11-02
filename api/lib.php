@@ -91,16 +91,29 @@ function bv_price_cart( $cart ) {
 	$lines    = array();
 	$errors   = array();
 	$subtotal = 0;
-	foreach ( (array) $cart as $slug => $qty ) {
+	foreach ( (array) $cart as $key => $qty ) {
 		$qty = (int) $qty;
 		if ( $qty < 1 ) {
 			continue;
 		}
+		// Cart keys are "slug" or "slug|Option value" (for example a colour).
+		$parts  = explode( '|', (string) $key, 2 );
+		$slug   = $parts[0];
+		$option = isset( $parts[1] ) ? $parts[1] : '';
 		if ( ! isset( $products[ $slug ] ) ) {
 			$errors[] = 'A product in your cart is no longer available.';
 			continue;
 		}
 		$p = $products[ $slug ];
+		if ( ! empty( $p['options'] ) ) {
+			$allowed = array_column( $p['options']['values'], 'value' );
+			if ( ! in_array( $option, $allowed, true ) ) {
+				$errors[] = 'Please choose a ' . strtolower( $p['options']['name'] ) . ' for ' . $p['name'] . '.';
+				continue;
+			}
+		} else {
+			$option = '';
+		}
 		if ( empty( $p['inStock'] ) ) {
 			$errors[] = $p['name'] . ' is out of stock.';
 			continue;
@@ -109,7 +122,7 @@ function bv_price_cart( $cart ) {
 		$unit      = bv_cents( $p['price'] );
 		$lines[]   = array(
 			'slug'  => $slug,
-			'name'  => $p['name'],
+			'name'  => $p['name'] . ( '' !== $option ? ' (' . $p['options']['name'] . ': ' . $option . ')' : '' ),
 			'qty'   => $qty,
 			'unit'  => $unit,
 			'total' => $unit * $qty,

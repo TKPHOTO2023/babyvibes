@@ -75,11 +75,17 @@
 		var cart = getCart();
 		var lines = [];
 		var subtotal = 0;
-		Object.keys(cart).forEach(function (slug) {
-			var p = d.bySlug[slug];
-			var qty = cart[slug];
+		Object.keys(cart).forEach(function (key) {
+			var parts = key.split('|');
+			var p = d.bySlug[parts[0]];
+			var qty = cart[key];
 			if (!p || !p.inStock || qty < 1) { return; }
-			lines.push({ product: p, qty: qty, total: p.price * qty });
+			var opt = null;
+			if (p.options) {
+				opt = p.options.values.filter(function (v) { return v.value === parts[1]; })[0];
+				if (!opt) { return; }
+			}
+			lines.push({ product: p, key: key, option: opt ? opt.value : '', image: (opt && opt.image) || p.images[0], qty: qty, total: p.price * qty });
 			subtotal += p.price * qty;
 		});
 		var del = d.shop.delivery;
@@ -111,9 +117,9 @@
 	function card(p) {
 		var badge = !p.inStock ? '<span class="badge badge--out">Sold out</span>'
 			: (p.badge ? '<span class="badge">' + esc(p.badge) + '</span>' : '');
-		var button = p.inStock
-			? '<button class="btn btn--small" type="button" data-add="' + esc(p.slug) + '">Add to cart</button>'
-			: '<a class="btn btn--small btn--ghost" href="' + productUrl(p) + '">View</a>';
+		var button = !p.inStock ? '<a class="btn btn--small btn--ghost" href="' + productUrl(p) + '">View</a>'
+			: p.options ? '<a class="btn btn--small" href="' + productUrl(p) + '">Choose ' + esc(p.options.name.toLowerCase()) + '</a>'
+			: '<button class="btn btn--small" type="button" data-add="' + esc(p.slug) + '">Add to cart</button>';
 		return '<article class="card">' + badge +
 			'<a class="thumb" href="' + productUrl(p) + '" tabindex="-1" aria-hidden="true"><img src="' + esc(p.images[0]) +
 			'" alt="" loading="lazy" width="600" height="600"></a>' +
@@ -236,7 +242,12 @@
 			'<div><h1>' + esc(p.name) + '</h1><p class="price">' + priceHtml(p) + '</p>' +
 			'<p class="lead">' + esc(p.short) + '</p>' +
 			(p.inStock
-				? '<p class="stock">In stock</p><div class="buy"><div class="qty" role="group" aria-label="Quantity">' +
+				? '<p class="stock">In stock</p>' + (p.options ? '<fieldset class="options"><legend>' + esc(p.options.name) +
+					': <span id="opt-label">choose one</span></legend><div class="opt-list">' + p.options.values.map(function (v) {
+						return '<button type="button" class="opt" data-opt="' + esc(v.value) + '" aria-pressed="false">' +
+							(v.swatch ? '<span class="swatch" style="background:' + esc(v.swatch) + '"></span>' : '') + esc(v.value) + '</button>';
+					}).join('') + '</div><p class="err" id="opt-err" hidden>Please choose a ' + esc(p.options.name.toLowerCase()) + '.</p></fieldset>' : '') +
+				'<div class="buy"><div class="qty" role="group" aria-label="Quantity">' +
 				'<button type="button" data-step="-1" aria-label="One less">&minus;</button>' +
 				'<input id="qty" type="number" min="1" max="20" value="1" inputmode="numeric" aria-label="Quantity">' +
 				'<button type="button" data-step="1" aria-label="One more">+</button></div>' +
@@ -247,7 +258,22 @@
 			info.map(function (x) { return '<details><summary>' + esc(x[0]) + '</summary><div>' + x[1] + '</div></details>'; }).join('') +
 			'</div></div></div>';
 
+		var chosen = '';
 		root.addEventListener('click', function (e) {
+			var o = e.target.closest('[data-opt]');
+			if (o) {
+				chosen = o.getAttribute('data-opt');
+				root.querySelectorAll('[data-opt]').forEach(function (b) { b.setAttribute('aria-pressed', b === o ? 'true' : 'false'); });
+				$('#opt-label').textContent = chosen;
+				$('#opt-err').hidden = true;
+				var v = p.options.values.filter(function (x) { return x.value === chosen; })[0];
+				if (v && v.image) {
+					$('#main-img').src = v.image;
+					root.querySelectorAll('[data-img]').forEach(function (b) {
+						if (b.getAttribute('data-img') === v.image) { b.setAttribute('aria-current', 'true'); } else { b.removeAttribute('aria-current'); }
+					});
+				}
+			}
 			var t = e.target.closest('[data-img]');
 			if (t) {
 				$('#main-img').src = t.getAttribute('data-img');
@@ -261,8 +287,13 @@
 			}
 			if (e.target.closest('#add')) {
 				var n = Math.max(1, Math.min(20, parseInt($('#qty').value, 10) || 1));
-				addToCart(p.slug, n);
-				toast(n + ' x ' + esc(p.name) + ' added to your cart. <a href="cart.html">View cart</a>');
+				if (p.options && !chosen) {
+					$('#opt-err').hidden = false;
+					$('.options').scrollIntoView({ behavior: 'smooth', block: 'center' });
+					return;
+				}
+				addToCart(p.options ? p.slug + '|' + chosen : p.slug, n);
+				toast(n + ' x ' + esc(p.name) + (chosen ? ' (' + esc(chosen) + ')' : '') + ' added to your cart. <a href="cart.html">View cart</a>');
 			}
 		});
 
@@ -285,7 +316,7 @@
 			bar = '<p class="free-bar">You get free delivery!</p>';
 		}
 		var mini = withLines ? '<ul class="mini">' + c.lines.map(function (l) {
-			return '<li><span>' + l.qty + ' x ' + esc(l.product.name) + '</span><span>' + money(l.total) + '</span></li>';
+			return '<li><span>' + l.qty + ' x ' + esc(l.product.name) + (l.option ? ' (' + esc(l.option) + ')' : '') + '</span><span>' + money(l.total) + '</span></li>';
 		}).join('') + '</ul>' : '';
 		return '<h2>Order summary</h2>' + mini + bar + '<dl><dt>Subtotal</dt><dd>' + money(c.subtotal) + '</dd>' +
 			'<dt>Delivery</dt><dd>' + (c.delivery ? money(c.delivery) : 'Free') + '</dd>' +
@@ -302,14 +333,17 @@
 			}
 			root.innerHTML = '<div class="cart-layout"><div class="cart-lines">' + c.lines.map(function (l) {
 				var p = l.product;
-				return '<div class="line"><img src="' + esc(p.images[0]) + '" alt="">' +
-					'<div><h3><a href="' + productUrl(p) + '">' + esc(p.name) + '</a></h3><p class="unit">' + money(p.price) + ' each</p></div>' +
+				var k = esc(l.key);
+				return '<div class="line"><img src="' + esc(l.image) + '" alt="">' +
+					'<div><h3><a href="' + productUrl(p) + '">' + esc(p.name) + '</a></h3>' +
+					(l.option ? '<p class="unit">' + esc(p.options.name) + ': <strong>' + esc(l.option) + '</strong></p>' : '') +
+					'<p class="unit">' + money(p.price) + ' each</p></div>' +
 					'<div class="end"><div class="qty qty--small" role="group" aria-label="Quantity of ' + esc(p.name) + '">' +
-					'<button type="button" data-qty="' + esc(p.slug) + '" data-step="-1" aria-label="One less">&minus;</button>' +
-					'<input type="number" value="' + l.qty + '" min="1" max="20" data-set="' + esc(p.slug) + '" aria-label="Quantity">' +
-					'<button type="button" data-qty="' + esc(p.slug) + '" data-step="1" aria-label="One more">+</button></div>' +
+					'<button type="button" data-qty="' + k + '" data-step="-1" aria-label="One less">&minus;</button>' +
+					'<input type="number" value="' + l.qty + '" min="1" max="20" data-set="' + k + '" aria-label="Quantity">' +
+					'<button type="button" data-qty="' + k + '" data-step="1" aria-label="One more">+</button></div>' +
 					'<span class="total">' + money(l.total) + '</span>' +
-					'<button class="link-btn" type="button" data-remove="' + esc(p.slug) + '">Remove</button></div></div>';
+					'<button class="link-btn" type="button" data-remove="' + k + '">Remove</button></div></div>';
 			}).join('') + '</div><aside class="summary">' + summaryHtml(d, c, false) +
 				'<a class="btn btn--block" href="checkout.html">Checkout</a>' +
 				'<p class="secure">' + LOCK + ' Secure payment with Yoco</p></aside></div>';
