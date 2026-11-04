@@ -1,0 +1,23 @@
+---
+title: Track your order | BabyVibes
+description: See where your BabyVibes order is with your order number and email.
+page: track
+nav: track
+---
+<section class="section section--blush center" style="padding-bottom:48px">
+ <div class="narrow"><span class="kicker">Order tracking</span><h1>Where's my order?</h1><p class="lead">Enter your order number (it's in your confirmation email) and the email you ordered with.</p></div>
+</section>
+<section class="section">
+ <div class="narrow">
+  <p class="alert" id="track-alert" role="alert" hidden></p>
+  <form class="form prose" id="track-form" novalidate>
+   <div class="row">
+    <div class="field"><label for="t-order">Order number</label><input id="t-order" name="order" required placeholder="BV261102-A1B2C3" autocomplete="off"></div>
+    <div class="field"><label for="t-email">Email</label><input id="t-email" name="email" type="email" required autocomplete="email"></div>
+   </div>
+   <button class="btn btn--block" type="submit">Track my order</button>
+   <p class="hint center">Have an account? <a href="account.html">Log in</a> to see all your orders.</p>
+  </form>
+  <div id="track-result" aria-live="polite" style="margin-top:28px"></div>
+ </div>
+</section>

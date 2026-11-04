@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en-ZA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My account | BabyVibes</title>
+<meta name="description" content="Log in or create a BabyVibes account to track your orders and check out faster.">
+<meta property="og:title" content="My account | BabyVibes">
+<meta property="og:description" content="Log in or create a BabyVibes account to track your orders and check out faster.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#FDF0F4">
+<meta name="robots" content="noindex">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="account">
+<a class="sr-only" href="#main">Skip to content</a>
+<div class="announce" data-promo-bar data-fallback="Free delivery on orders over R750"><a href="shop.html"><strong>Black Friday special</strong></a><span data-promo-label></span> <span data-countdown="compact"></span></div>
+<header class="site-header">
+ <div class="wrap">
+  <a class="logo" href="index.html" aria-label="BabyVibes home"><img class="logo-img" src="assets/img/logo.png" alt="BabyVibes" width="613" height="176"></a>
+  <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+  <nav class="nav" id="site-nav" aria-label="Main"><ul><li><a href="index.html">Home</a></li><li><a href="shop.html">Shop</a></li><li><a href="about.html">About</a></li><li><a href="faq.html">FAQ & Delivery</a></li><li><a href="contact.html">Contact</a></li></ul></nav>
+  <a class="cart-link account-link" href="account.html" aria-label="My account"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></a>
+  <a class="cart-link" href="cart.html" aria-label="Cart"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.5L20.5 8H6.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.5" fill="currentColor"/><circle cx="17" cy="20" r="1.5" fill="currentColor"/></svg><span class="cart-count" data-count="0">0</span></a>
+ </div>
+</header>
+<main id="main">
+<section class="section">
+ <div class="wrap" id="account" aria-live="polite"><p class="empty">Loading...</p></div>
+</section>
+<template id="tpl-auth">
+ <div class="section-head"><span class="kicker">My account</span><h1>Welcome back, mama</h1><p>Log in to track your orders, or create an account. You can also check out as a guest.</p></div>
+ <div class="auth-grid">
+  <div class="auth-card prose">
+   <h2>Log in</h2>
+   <p class="alert" id="login-alert" role="alert" hidden></p>
+   <form class="form" id="login-form" novalidate>
+    <div class="field"><label for="li-email">Email</label><input id="li-email" name="email" type="email" autocomplete="username" required></div>
+    <div class="field"><label for="li-pass">Password</label><input id="li-pass" name="password" type="password" autocomplete="current-password" required></div>
+    <button class="btn btn--block" type="submit">Log in</button>
+    <p class="center"><a href="#" data-forgot>Forgot your password?</a></p>
+   </form>
+  </div>
+  <div class="auth-card prose" hidden>
+   <h2>Reset your password</h2>
+   <p>Enter your email and we'll send you a link to choose a new password.</p>
+   <p class="alert" id="forgot-alert" role="alert" hidden></p>
+   <form class="form" id="forgot-form" novalidate>
+    <div class="field"><label for="fg-email">Email</label><input id="fg-email" name="email" type="email" autocomplete="email" required></div>
+    <button class="btn btn--block" type="submit">Send the reset link</button>
+    <p class="center"><a href="#" data-login>Back to log in</a></p>
+   </form>
+  </div>
+  <div class="auth-card prose">
+   <h2>Create an account</h2>
+   <ul class="ticks small-ticks"><li>Track your orders</li><li>Check out faster with your saved address</li><li>See your order history</li></ul>
+   <p class="alert" id="register-alert" role="alert" hidden></p>
+   <form class="form" id="register-form" novalidate>
+    <div class="row">
+     <div class="field"><label for="rg-first">First name</label><input id="rg-first" name="firstName" autocomplete="given-name" required></div>
+     <div class="field"><label for="rg-last">Last name</label><input id="rg-last" name="lastName" autocomplete="family-name" required></div>
+    </div>
+    <div class="field"><label for="rg-email">Email</label><input id="rg-email" name="email" type="email" autocomplete="email" required></div>
+    <div class="field"><label for="rg-pass">Password <span class="hint">at least 8 characters</span></label><input id="rg-pass" name="password" type="password" minlength="8" autocomplete="new-password" required></div>
+    <label class="check"><input type="checkbox" name="marketing"> Email me about new products and specials (you can stop any time)</label>
+    <div class="hp" aria-hidden="true"><label for="rg-web">Leave this empty</label><input id="rg-web" name="website" tabindex="-1" autocomplete="off"></div>
+    <button class="btn btn--block" type="submit">Create my account</button>
+    <p class="hint">By creating an account you agree to our <a href="terms.html">terms</a> and <a href="privacy.html">privacy policy</a>.</p>
+   </form>
+  </div>
+ </div>
+</template>
+<template id="tpl-dash">
+ <div class="dash-head"><div><span class="kicker">My account</span><h1 id="hello">Hi!</h1></div><button class="btn btn--ghost btn--small" type="button" id="logout">Log out</button></div>
+ <div class="dash">
+  <section class="dash-main">
+   <h2>My orders</h2>
+   <div id="orders"><p class="hint">Loading your orders...</p></div>
+  </section>
+  <aside class="dash-side">
+   <div class="prose">
+    <h2>My details</h2>
+    <p class="alert" id="details-alert" role="status" hidden></p>
+    <form class="form" id="details-form" novalidate>
+     <div class="row">
+      <div class="field"><label for="d-first">First name</label><input id="d-first" name="firstName" autocomplete="given-name" required></div>
+      <div class="field"><label for="d-last">Last name</label><input id="d-last" name="lastName" autocomplete="family-name" required></div>
+     </div>
+     <div class="field"><label for="d-email">Email</label><input id="d-email" name="email" type="email" disabled></div>
+     <div class="field"><label for="d-phone">Cellphone</label><input id="d-phone" name="phone" type="tel" autocomplete="tel"></div>
+     <div class="field"><label for="d-a1">Street address</label><input id="d-a1" name="address1" autocomplete="address-line1"></div>
+     <div class="field"><label for="d-a2">Complex, unit or building <span class="hint">optional</span></label><input id="d-a2" name="address2" autocomplete="address-line2"></div>
+     <div class="row">
+      <div class="field"><label for="d-sub">Suburb</label><input id="d-sub" name="suburb" autocomplete="address-level3"></div>
+      <div class="field"><label for="d-city">City or town</label><input id="d-city" name="city" autocomplete="address-level2"></div>
+     </div>
+     <div class="row">
+      <div class="field"><label for="d-prov">Province</label><select id="d-prov" name="province" autocomplete="address-level1"><option value="">Choose...</option><option>Eastern Cape</option><option>Free State</option><option>Gauteng</option><option>KwaZulu-Natal</option><option>Limpopo</option><option>Mpumalanga</option><option>North West</option><option>Northern Cape</option><option>Western Cape</option></select></div>
+      <div class="field"><label for="d-pc">Postal code</label><input id="d-pc" name="postcode" inputmode="numeric" maxlength="4" autocomplete="postal-code"></div>
+     </div>
+     <label class="check"><input type="checkbox" name="marketing"> Email me about new products and specials</label>
+     <button class="btn btn--block" type="submit">Save my details</button>
+    </form>
+   </div>
+   <div class="prose">
+    <h2>Change password</h2>
+    <p class="alert" id="password-alert" role="status" hidden></p>
+    <form class="form" id="password-form" novalidate>
+     <div class="field"><label for="p-cur">Current password</label><input id="p-cur" name="currentPassword" type="password" autocomplete="current-password" required></div>
+     <div class="field"><label for="p-new">New password <span class="hint">at least 8 characters</span></label><input id="p-new" name="newPassword" type="password" minlength="8" autocomplete="new-password" required></div>
+     <button class="btn btn--ghost btn--block" type="submit">Change password</button>
+    </form>
+   </div>
+  </aside>
+ </div>
+</template>
+</main>
+<footer class="site-footer">
+ <div class="wrap">
+  <div class="footer-grid">
+   <div>
+    <a class="logo" href="index.html" aria-label="BabyVibes home"><img class="logo-img" src="assets/img/logo.png" alt="BabyVibes" width="613" height="176"></a>
+    <p>Baby and kids essentials for busy moms: feeding, toys, baby gear and more, delivered across South Africa.</p>
+   </div>
+   <div>
+    <h2>Shop</h2>
+    <ul><li><a href="shop.html">All products</a></li><li><a href="account.html">My account</a></li><li><a href="track.html">Track my order</a></li><li><a href="faq.html">FAQ &amp; Delivery</a></li></ul>
+   </div>
+   <div>
+    <h2>Help</h2>
+    <ul>
+     <li><a href="https://wa.me/27000000000" rel="noopener">WhatsApp 000 000 0000</a></li>
+     <li><a href="mailto:hello@babyvibes.co.za">hello@babyvibes.co.za</a></li>
+     <li><a href="contact.html">Contact us</a></li>
+    </ul>
+   </div>
+  </div>
+  <section class="payments" aria-labelledby="pay-title">
+   <h2 id="pay-title"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3H9z"/></svg> Secure payment</h2>
+   <p>Pay safely with Yoco using a card from any South African bank. Your card details are encrypted and never reach us.</p>
+   <ul class="pay-row" aria-label="Banks and cards accepted"><li class="pay-logo"><img src="assets/img/banks/absa.png" alt="Absa" height="28" loading="lazy"></li><li class="pay-logo"><img src="assets/img/banks/fnb.png" alt="FNB" height="28" loading="lazy"></li><li class="pay-logo"><img src="assets/img/banks/capitec.svg" alt="Capitec" height="28" loading="lazy"></li><li class="pay-logo"><img src="assets/img/banks/tymebank.png" alt="TymeBank" height="28" loading="lazy"></li><li class="pay-logo"><img src="assets/img/banks/nedbank.png" alt="Nedbank" height="28" loading="lazy"></li><li class="pay-logo"><img src="assets/img/banks/standard-bank.png" alt="Standard Bank" height="28" loading="lazy"></li><li class="pay-logo"><img src="assets/img/cards/mastercard.svg" alt="Mastercard" height="28" loading="lazy"></li><li class="pay-logo"><img src="assets/img/cards/visa.svg" alt="Visa" height="28" loading="lazy"></li></ul>
+  </section>
+  <div class="footer-base">
+   <span>&copy; 2026 BabyVibes is trading as Hostdigi (Pty) Ltd. Prices in South African rand, including VAT where applicable.</span>
+   <span><a href="terms.html">Terms &amp; returns</a> &middot; <a href="privacy.html">Privacy</a></span>
+  </div>
+ </div>
+</footer>
+<script src="assets/js/store.js" defer></script>
+</body>
+</html>

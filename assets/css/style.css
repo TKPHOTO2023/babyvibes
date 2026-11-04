@@ -425,3 +425,54 @@ details ul { padding-left: 20px; margin: 0 0 1em; }
 @media (prefers-reduced-motion: reduce) {
 	*, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* Accounts and order tracking */
+.account-link.is-in { background: var(--pink-soft); color: var(--brand-dark); }
+.account-link.is-in::after { content: ""; position: absolute; right: 6px; bottom: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--success); border: 2px solid var(--white); }
+.site-header .wrap > .cart-link + .cart-link { margin-left: -12px; }
+.auth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+@media (max-width: 860px) { .auth-grid { grid-template-columns: 1fr; } }
+.auth-card h2 { font-size: 1.5rem; }
+.small-ticks { margin: 0 0 18px; font-size: 0.95rem; }
+.check { display: flex; gap: 10px; align-items: flex-start; font-weight: 600; cursor: pointer; }
+.check input { width: 20px; height: 20px; margin: 2px 0 0; flex: 0 0 auto; accent-color: var(--brand); }
+.signed-in { background: var(--mauve-soft); border-radius: 14px; padding: 12px 16px; margin: 0; }
+#account-fields { display: grid; gap: 14px; margin-top: 14px; }
+.dash-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 24px; }
+.dash { display: grid; grid-template-columns: 1.6fr 1fr; gap: 28px; align-items: start; }
+.dash-side { display: grid; gap: 24px; }
+.dash-side .prose { padding: 24px; }
+@media (max-width: 900px) { .dash { grid-template-columns: 1fr; } }
+.order-card { background: var(--white); border: 1px solid var(--line); border-radius: 20px; margin-bottom: 14px; box-shadow: var(--shadow); }
+.order-card summary { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 52px 16px 20px; }
+.order-card > div { padding: 0 20px 20px; }
+.badge-st { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 0.82rem; font-weight: 800; background: var(--mauve-soft); color: var(--ink); white-space: nowrap; }
+.badge-st.st-paid { background: var(--pink-soft); color: var(--brand-dark); }
+.badge-st.st-shipped { background: #E7EEFA; color: #23467A; }
+.badge-st.st-delivered { background: #E8F4EC; color: var(--success); }
+.order-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
+.order-head h2 { margin: 0; }
+.steps { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); padding: 0; margin: 18px 0; counter-reset: step; }
+.steps li { position: relative; text-align: center; font-weight: 700; font-size: 0.9rem; color: var(--ink-soft); padding-top: 34px; }
+.steps li::before {
+	counter-increment: step; content: counter(step); position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+	width: 28px; height: 28px; border-radius: 50%; background: var(--white); border: 2px solid var(--line); line-height: 24px; font-size: 0.85rem; z-index: 1;
+}
+.steps li::after { content: ""; position: absolute; top: 13px; left: -50%; width: 100%; height: 3px; background: var(--line); }
+.steps li:first-child::after { display: none; }
+.steps li.done { color: var(--ink); }
+.steps li.done::before { content: "\2713"; background: var(--brand); border-color: var(--brand); color: var(--white); }
+.steps li.done::after { background: var(--brand); }
+.steps li.now { color: var(--brand-dark); }
+.tracking { background: var(--blush); border-radius: 14px; padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
+.order-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 640px) { .order-cols { grid-template-columns: 1fr; } }
+.order-cols h3 { font-size: 1rem; margin: 6px 0 10px; }
+.events { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; font-size: 0.95rem; }
+.events time { display: block; color: var(--ink-soft); font-size: 0.82rem; font-weight: 700; }
+.addr { margin: 0; color: var(--ink-soft); }
+template { display: none; }
+.order-cols .mini { list-style: none; padding: 0; margin: 0 0 16px; display: grid; gap: 8px; font-size: 0.95rem; }
+.order-cols .mini li { display: flex; justify-content: space-between; gap: 12px; }
+.order-cols .mini li:nth-last-child(-n+2) { border-top: 1px solid var(--line); padding-top: 8px; }
+.order-cols .mini li:last-child { border-top: 0; padding-top: 0; }

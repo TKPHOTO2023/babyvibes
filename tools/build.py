@@ -62,6 +62,8 @@ def logo_html():
 CART_ICON = ('<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.5L20.5 8H6.2" '
              'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
              '<circle cx="10" cy="20" r="1.5" fill="currentColor"/><circle cx="17" cy="20" r="1.5" fill="currentColor"/></svg>')
+USER_ICON = ('<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/>'
+             '<path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>')
 MENU_ICON = ('<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" '
              'stroke-width="2.2" stroke-linecap="round"/></svg>')
 
@@ -178,6 +180,7 @@ def layout(meta, body):
   <a class="logo" href="index.html" aria-label="BabyVibes home">{logo_html()}</a>
   <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">{MENU_ICON}</button>
   <nav class="nav" id="site-nav" aria-label="Main"><ul>{nav}</ul></nav>
+  <a class="cart-link account-link" href="account.html" aria-label="My account">{USER_ICON}</a>
   <a class="cart-link" href="cart.html" aria-label="Cart">{CART_ICON}<span class="cart-count" data-count="0">0</span></a>
  </div>
 </header>
@@ -193,7 +196,7 @@ def layout(meta, body):
    </div>
    <div>
     <h2>Shop</h2>
-    <ul><li><a href="shop.html">All products</a></li><li><a href="cart.html">Your cart</a></li><li><a href="faq.html">FAQ &amp; Delivery</a></li></ul>
+    <ul><li><a href="shop.html">All products</a></li><li><a href="account.html">My account</a></li><li><a href="track.html">Track my order</a></li><li><a href="faq.html">FAQ &amp; Delivery</a></li></ul>
    </div>
    <div>
     <h2>Help</h2>

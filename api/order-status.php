@@ -8,21 +8,6 @@ require __DIR__ . '/lib.php';
 
 $order = bv_load_order( $_GET['order'] ?? '' );
 if ( ! $order || ! hash_equals( $order['token'], (string) ( $_GET['t'] ?? '' ) ) ) {
-	bv_json( array( 'error' => 'Order not found.' ), 404 );
+	bv_fail( 'Order not found.', 404 );
 }
-
-bv_json(
-	array(
-		'id'        => $order['id'],
-		'status'    => $order['status'],
-		'firstName' => $order['customer']['firstName'],
-		'lines'     => array_map(
-			function ( $l ) {
-				return array( 'name' => $l['name'], 'qty' => $l['qty'], 'total' => $l['total'] );
-			},
-			$order['lines']
-		),
-		'delivery'  => $order['delivery'],
-		'total'     => $order['total'],
-	)
-);
+bv_json( bv_public_order( $order ) );

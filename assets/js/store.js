@@ -26,6 +26,76 @@
 			localStorage.setItem(key, JSON.stringify(value));
 		} catch (e) { return null; }
 	}
+	/** POSTs JSON to the shop's API. The custom header proves the request comes from our own pages. */
+	function post(url, body) {
+		return fetch(url, {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'BabyVibes' },
+			body: JSON.stringify(body || {})
+		}).then(function (r) {
+			return r.json().catch(function () { return { error: 'Something went wrong. Please try again.' }; })
+				.then(function (data) { data._status = r.status; return data; });
+		}).catch(function () {
+			return { error: 'We couldn\'t reach the shop. Check your internet connection and try again.', _status: 0 };
+		});
+	}
+	function get(url) {
+		return fetch(url, { credentials: 'same-origin', cache: 'no-store' })
+			.then(function (r) { return r.json().then(function (data) { data._status = r.status; return data; }); })
+			.catch(function () { return { _status: 0 }; });
+	}
+
+	var mePromise = null;
+	/** The signed-in customer, or null. */
+	function me(refresh) {
+		if (!mePromise || refresh) {
+			mePromise = get('api/account.php?action=me').then(function (r) { return r.customer || null; });
+		}
+		return mePromise;
+	}
+
+	function clearErrors(form) {
+		form.querySelectorAll('.field').forEach(function (f) {
+			f.classList.remove('has-error');
+			var m = f.querySelector('.err');
+			if (m) { m.remove(); }
+		});
+	}
+	function showErrors(form, fields) {
+		Object.keys(fields || {}).forEach(function (k) {
+			var input = form.elements[k] || form.querySelector('[data-name="' + k + '"]');
+			var f = input && (input.closest ? input.closest('.field') : null);
+			if (f) {
+				f.classList.add('has-error');
+				f.insertAdjacentHTML('beforeend', '<p class="err">' + esc(fields[k]) + '</p>');
+			}
+		});
+	}
+	function say(el, msg, kind) {
+		el.className = 'alert alert--' + (kind || 'error');
+		el.textContent = msg;
+		el.hidden = false;
+		el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+	}
+	function values(form, names) {
+		var out = {};
+		names.forEach(function (k) {
+			var el = form.elements[k];
+			if (!el) { return; }
+			out[k] = el.type === 'checkbox' ? el.checked : el.value.trim();
+		});
+		return out;
+	}
+	function date(s) {
+		var d = new Date(String(s).replace(' ', 'T') + 'Z');
+		return isNaN(d) ? '' : d.toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' });
+	}
+	function dateTime(s) {
+		var d = new Date(String(s).replace(' ', 'T') + 'Z');
+		return isNaN(d) ? '' : d.toLocaleString('en-ZA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+	}
+
 	function productUrl(p) { return 'product.html?p=' + encodeURIComponent(p.slug); }
 
 	var dataPromise = null;
@@ -389,6 +459,27 @@
 		var saved = store(CUSTOMER_KEY) || {};
 		Object.keys(saved).forEach(function (k) { if (form.elements[k] && !form.elements[k].value) { form.elements[k].value = saved[k]; } });
 
+		var box = $('#account-box');
+		me().then(function (cust) {
+			if (cust) {
+				['firstName', 'lastName', 'email', 'phone', 'address1', 'address2', 'suburb', 'city', 'province', 'postcode'].forEach(function (k) {
+					if (cust[k] && form.elements[k]) { form.elements[k].value = cust[k]; }
+				});
+				box.innerHTML = '<p class="signed-in">Signed in as <strong>' + esc(cust.firstName + ' ' + cust.lastName) +
+					'</strong>. This order will be saved to <a href="account.html">your account</a>.</p>';
+				return;
+			}
+			box.innerHTML = '<p class="hint">Have an account? <a href="account.html?next=checkout.html">Log in</a> for faster checkout.</p>' +
+				'<label class="check"><input type="checkbox" name="createAccount" id="createAccount"> Create an account to track this order and check out faster next time</label>' +
+				'<div id="account-fields" hidden><div class="field"><label for="password">Choose a password <span class="hint">at least 8 characters</span></label>' +
+				'<input id="password" name="password" type="password" minlength="8" autocomplete="new-password"></div>' +
+				'<label class="check"><input type="checkbox" name="marketing"> Email me about new products and specials (you can stop any time)</label></div>';
+			$('#createAccount').addEventListener('change', function () {
+				$('#account-fields').hidden = !this.checked;
+				form.elements.password.required = this.checked;
+			});
+		});
+
 		function showAlert(msg, kind) {
 			alert.className = 'alert alert--' + (kind || 'error');
 			alert.textContent = msg;
@@ -416,12 +507,11 @@
 			var btn = $('#pay');
 			btn.disabled = true;
 			btn.textContent = 'Opening secure payment...';
-			fetch('api/checkout.php', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ cart: getCart(), customer: customer, website: form.elements.website.value })
-			}).then(function (r) {
-				return r.json().catch(function () { return { error: 'Something went wrong. Please try again.' }; });
+			var create = form.elements.createAccount && form.elements.createAccount.checked;
+			post('api/checkout.php', {
+				cart: getCart(), customer: customer, website: form.elements.website.value,
+				createAccount: !!create, password: create ? form.elements.password.value : '',
+				marketing: !!(create && form.elements.marketing.checked)
 			}).then(function (res) {
 				if (res.redirectUrl) {
 					location.href = res.redirectUrl;
@@ -442,10 +532,6 @@
 				var msg = res.error || 'Something went wrong. Please try again.';
 				if (res.fields && res.fields.cart) { msg = res.fields.cart; }
 				showAlert(msg);
-			}).catch(function () {
-				btn.disabled = false;
-				btn.textContent = 'Pay ' + money(c.total) + ' securely';
-				showAlert('We couldn\'t reach the shop. Check your internet connection and try again.');
 			});
 		});
 		$('#pay').textContent = 'Pay ' + money(c.total) + ' securely';
@@ -471,7 +557,8 @@
 							o.lines.map(function (l) { return '<li><span>' + l.qty + ' x ' + esc(l.name) + '</span><span>' + cents(l.total) + '</span></li>'; }).join('') +
 							'<li><span>Delivery</span><span>' + (o.delivery ? cents(o.delivery) : 'Free') + '</span></li>' +
 							'<li><strong>Total</strong><strong>' + cents(o.total) + '</strong></li></ul></div>' +
-							'<a class="btn" href="shop.html">Keep shopping</a>';
+							'<div class="btn-row" style="justify-content:center"><a class="btn" href="track.html?order=' + encodeURIComponent(o.id) + '">Track your order</a>' +
+							'<a class="btn btn--ghost" href="shop.html">Keep shopping</a></div>';
 					} else if (o.status === 'pending' && tries++ < 10) {
 						root.querySelector('.lead').textContent = 'We\'re confirming your payment with Yoco. This usually takes a few seconds...';
 						setTimeout(check, 3000);
@@ -494,7 +581,7 @@
 	}
 
 	function loadReviews() {
-		return fetch('data/reviews.json', { cache: 'no-cache' }).then(function (r) { return r.json(); })
+		return fetch('api/reviews.php').then(function (r) { return r.json(); })
 			.then(function (d) { return (d && d.reviews) || []; }).catch(function () { return []; });
 	}
 
@@ -585,8 +672,7 @@
 			}
 			var btn = $('#send-review');
 			btn.disabled = true;
-			fetch('api/review.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-				.then(function (r) { return r.json().catch(function () { return { error: 'Something went wrong. Please try again.' }; }); })
+			post('api/review.php', body)
 				.then(function (res) {
 					btn.disabled = false;
 					if (res.ok) {
@@ -611,6 +697,205 @@
 					showAlert('We couldn\'t reach the shop. Check your internet connection and try again.');
 				});
 		});
+	};
+
+
+	// Accounts, tracking ----------------------------------------------------------------------
+
+	var STEPS = [['paid', 'Paid'], ['shipped', 'Shipped'], ['delivered', 'Delivered']];
+
+	/** An order's progress, history and courier details (account page and tracking page). */
+	function orderDetailHtml(o) {
+		var stopped = ['cancelled', 'refunded'].indexOf(o.status) >= 0;
+		var reached = { pending: 0, amount_mismatch: 0, checkout_failed: 0, paid: 1, shipped: 2, delivered: 3 }[o.status] || 0;
+		var steps = stopped ? '<p class="alert alert--info">' + esc(o.statusLabel) + '</p>' :
+			'<ol class="steps" aria-label="Order progress">' + '<li class="done">Ordered</li>' + STEPS.map(function (st, i) {
+				return '<li class="' + (reached > i ? 'done' : '') + (reached === i + 1 ? ' now' : '') + '">' + st[1] + '</li>';
+			}).join('') + '</ol>';
+		var tr = o.tracking ? '<div class="tracking"><strong>' + esc(o.tracking.courier || 'Courier') + '</strong> tracking number <strong>' + esc(o.tracking.number) + '</strong>' +
+			(o.tracking.url ? ' <a class="btn btn--small" href="' + esc(o.tracking.url) + '" target="_blank" rel="noopener">Track with the courier</a>' : '') + '</div>' : '';
+		var events = (o.events || []).slice().reverse().map(function (e) {
+			return '<li><time>' + esc(dateTime(e.created_at)) + '</time> ' + esc(e.message) + '</li>';
+		}).join('');
+		var lines = o.lines.map(function (l) {
+			return '<li><span>' + l.qty + ' x ' + esc(l.name) + '</span><span>' + cents(l.total) + '</span></li>';
+		}).join('') + '<li><span>Delivery</span><span>' + (o.delivery ? cents(o.delivery) : 'Free') + '</span></li>' +
+			'<li><strong>Total</strong><strong>' + cents(o.total) + '</strong></li>';
+		return steps + tr + '<div class="order-cols"><div><h3>Updates</h3><ul class="events">' + events + '</ul></div>' +
+			'<div><h3>Items</h3><ul class="mini">' + lines + '</ul>' +
+			(o.address ? '<h3>Delivering to</h3><p class="addr">' + esc(o.address).replace(/\n/g, '<br>') + '</p>' : '') + '</div></div>';
+	}
+
+	function updateAccountLink() {
+		me().then(function (c) {
+			document.querySelectorAll('.account-link').forEach(function (a) {
+				a.setAttribute('aria-label', c ? 'My account (' + c.firstName + ')' : 'Log in or create an account');
+				a.classList.toggle('is-in', !!c);
+			});
+		});
+	}
+
+	pages.account = function () {
+		var root = $('#account');
+		var next = params.get('next');
+		if (next && !/^[\w-]+\.html(\?[\w=&%.-]*)?$/.test(next)) { next = ''; }
+
+		function signedOut(mode) {
+			root.innerHTML = $('#tpl-auth').innerHTML;
+			var login = $('#login-form');
+			var reg = $('#register-form');
+			var forgot = $('#forgot-form');
+			function show(which) {
+				login.closest('.auth-card').hidden = which === 'forgot';
+				forgot.closest('.auth-card').hidden = which !== 'forgot';
+			}
+			show(mode);
+			root.addEventListener('click', function (e) {
+				if (e.target.closest('[data-forgot]')) { e.preventDefault(); show('forgot'); forgot.elements.email.value = login.elements.email.value; forgot.elements.email.focus(); }
+				if (e.target.closest('[data-login]')) { e.preventDefault(); show('login'); }
+			});
+			function done(res) {
+				me(true);
+				updateAccountLink();
+				if (next) { location.href = next; return; }
+				signedIn(res.customer);
+			}
+			login.addEventListener('submit', function (e) {
+				e.preventDefault();
+				clearErrors(login);
+				var btn = login.querySelector('button');
+				btn.disabled = true;
+				post('api/account.php?action=login', values(login, ['email', 'password'])).then(function (res) {
+					btn.disabled = false;
+					if (res.customer) { done(res); return; }
+					say($('#login-alert'), res.error);
+				});
+			});
+			reg.addEventListener('submit', function (e) {
+				e.preventDefault();
+				clearErrors(reg);
+				if (!reg.reportValidity()) { return; }
+				var btn = reg.querySelector('button');
+				btn.disabled = true;
+				post('api/account.php?action=register', values(reg, ['firstName', 'lastName', 'email', 'password', 'marketing', 'website'])).then(function (res) {
+					btn.disabled = false;
+					if (res.customer) { done(res); return; }
+					showErrors(reg, res.fields);
+					say($('#register-alert'), res.error);
+				});
+			});
+			forgot.addEventListener('submit', function (e) {
+				e.preventDefault();
+				if (!forgot.reportValidity()) { return; }
+				post('api/account.php?action=forgot', values(forgot, ['email'])).then(function (res) {
+					if (res.ok) {
+						say($('#forgot-alert'), 'If there\'s an account with that email, we\'ve sent a link to reset your password. Check your inbox (and spam folder).', 'info');
+					} else {
+						say($('#forgot-alert'), res.error);
+					}
+				});
+			});
+		}
+
+		function signedIn(c) {
+			root.innerHTML = $('#tpl-dash').innerHTML;
+			$('#hello').textContent = 'Hi, ' + c.firstName + '!';
+			var form = $('#details-form');
+			Object.keys(c).forEach(function (k) {
+				var el = form.elements[k];
+				if (!el) { return; }
+				if (el.type === 'checkbox') { el.checked = !!c[k]; } else { el.value = c[k] || ''; }
+			});
+			form.addEventListener('submit', function (e) {
+				e.preventDefault();
+				clearErrors(form);
+				var body = values(form, ['firstName', 'lastName', 'phone', 'address1', 'address2', 'suburb', 'city', 'province', 'postcode', 'marketing']);
+				post('api/account.php?action=update', body).then(function (res) {
+					if (res.customer) { say($('#details-alert'), 'Your details are saved.', 'info'); me(true); return; }
+					showErrors(form, res.fields);
+					say($('#details-alert'), res.error);
+				});
+			});
+			var pw = $('#password-form');
+			pw.addEventListener('submit', function (e) {
+				e.preventDefault();
+				clearErrors(pw);
+				if (!pw.reportValidity()) { return; }
+				var body = values(form, ['firstName', 'lastName', 'phone', 'address1', 'address2', 'suburb', 'city', 'province', 'postcode', 'marketing']);
+				body.currentPassword = pw.elements.currentPassword.value;
+				body.newPassword = pw.elements.newPassword.value;
+				post('api/account.php?action=update', body).then(function (res) {
+					if (res.customer) { pw.reset(); say($('#password-alert'), 'Your password is changed.', 'info'); return; }
+					showErrors(pw, res.fields);
+					say($('#password-alert'), res.error);
+				});
+			});
+			$('#logout').addEventListener('click', function () {
+				post('api/account.php?action=logout').then(function () { me(true); updateAccountLink(); signedOut('login'); window.scrollTo(0, 0); });
+			});
+			get('api/account.php?action=orders').then(function (res) {
+				var list = $('#orders');
+				var orders = res.orders || [];
+				if (!orders.length) {
+					list.innerHTML = '<div class="empty"><p>No orders yet. Orders you place while logged in will show up here.</p><a class="btn" href="shop.html">Start shopping</a></div>';
+					return;
+				}
+				list.innerHTML = orders.map(function (o, i) {
+					return '<details class="order-card"' + (i === 0 ? ' open' : '') + '><summary><span><strong>' + esc(o.id) + '</strong><br><span class="hint">' +
+						esc(date(o.created)) + ' &middot; ' + cents(o.total) + '</span></span><span class="badge-st st-' + esc(o.status) + '">' + esc(o.statusLabel) + '</span></summary>' +
+						'<div>' + orderDetailHtml(o) + '</div></details>';
+				}).join('');
+			});
+		}
+
+		me().then(function (c) { if (c) { signedIn(c); } else { signedOut('login'); } });
+	};
+
+	pages.reset = function () {
+		var form = $('#reset-form');
+		var token = params.get('token') || '';
+		if (!token) { say($('#reset-alert'), 'This link is incomplete. Open the link from the email again, or ask for a new one on the login page.'); }
+		form.addEventListener('submit', function (e) {
+			e.preventDefault();
+			clearErrors(form);
+			if (!form.reportValidity()) { return; }
+			if (form.elements.password.value !== form.elements.password2.value) {
+				showErrors(form, { password2: 'The two passwords don\'t match.' });
+				return;
+			}
+			post('api/account.php?action=reset', { token: token, password: form.elements.password.value }).then(function (res) {
+				if (res.customer) {
+					$('#reset-wrap').innerHTML = '<div class="prose center"><h2>Password changed</h2><p>You\'re logged in.</p><a class="btn" href="account.html">Go to my account</a></div>';
+					return;
+				}
+				showErrors(form, res.fields);
+				say($('#reset-alert'), res.error);
+			});
+		});
+	};
+
+	pages.track = function () {
+		var form = $('#track-form');
+		var out = $('#track-result');
+		if (params.get('order')) { form.elements.order.value = params.get('order'); }
+		var saved = store(CUSTOMER_KEY) || {};
+		if (saved.email) { form.elements.email.value = saved.email; }
+		me().then(function (c) { if (c && !form.elements.email.value) { form.elements.email.value = c.email; } });
+		form.addEventListener('submit', function (e) {
+			e.preventDefault();
+			if (!form.reportValidity()) { return; }
+			var btn = form.querySelector('button');
+			btn.disabled = true;
+			post('api/track.php', values(form, ['order', 'email'])).then(function (o) {
+				btn.disabled = false;
+				if (!o.id) { out.innerHTML = ''; say($('#track-alert'), o.error || 'Order not found.'); return; }
+				$('#track-alert').hidden = true;
+				out.innerHTML = '<div class="prose"><div class="order-head"><h2>Order ' + esc(o.id) + '</h2><span class="badge-st st-' + esc(o.status) + '">' + esc(o.statusLabel) + '</span></div>' +
+					'<p class="hint">Placed ' + esc(date(o.created)) + '</p>' + orderDetailHtml(o) + '</div>';
+				out.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			});
+		});
+		if (form.elements.order.value && form.elements.email.value) { form.requestSubmit ? form.requestSubmit() : null; }
 	};
 
 	var LOCK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3H9z"/></svg>';
@@ -674,6 +959,7 @@
 		});
 	}
 	updateCount();
+	updateAccountLink();
 	data().then(promo).catch(function () {});
 	window.addEventListener('storage', function (e) { if (e.key === CART_KEY) { updateCount(); } });
 

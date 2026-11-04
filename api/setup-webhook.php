@@ -5,12 +5,13 @@
  * Run it again after you switch from the test key to the live key.
  */
 
+define( 'BV_HTML', true );
 require __DIR__ . '/lib.php';
 
 header( 'Content-Type: text/plain; charset=utf-8' );
 $config = bv_config();
 
-if ( 'change-me-to-a-long-random-string' === $config['admin_token'] || ! hash_equals( $config['admin_token'], (string) ( $_GET['token'] ?? '' ) ) ) {
+if ( strlen( $config['admin_token'] ) < 16 || 'change-me-to-a-long-random-string' === $config['admin_token'] || ! hash_equals( $config['admin_token'], (string) ( $_GET['token'] ?? '' ) ) ) {
 	http_response_code( 403 );
 	exit( "Not allowed. Set a new admin_token in api/config.php and add ?token=... to the address.\n" );
 }
@@ -35,19 +36,8 @@ if ( $status < 200 || $status >= 300 || empty( $body['secret'] ) ) {
 	exit( "Yoco said no (HTTP $status):\n" . json_encode( $body, JSON_PRETTY_PRINT ) . "\n\nCheck yoco_secret_key in api/config.php.\n" );
 }
 
-file_put_contents(
-	bv_orders_dir() . '/.webhook.json',
-	json_encode(
-		array(
-			'id'      => $body['id'] ?? '',
-			'mode'    => $mode,
-			'url'     => $url,
-			'secret'  => $body['secret'],
-			'created' => gmdate( 'c' ),
-		)
-	),
-	LOCK_EX
-);
+bv_setting( 'yoco_webhook_secret', $body['secret'] );
+bv_setting( 'yoco_webhook_info', json_encode( array( 'id' => $body['id'] ?? '', 'mode' => $mode, 'url' => $url, 'created' => gmdate( 'c' ) ) ) );
 
 echo "Done. Yoco will notify $url about payments ($mode mode).\n";
 echo "The webhook secret is saved; there's nothing to copy.\n";

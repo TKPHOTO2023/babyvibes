@@ -1,5 +1,5 @@
 # Only the endpoints are public. Settings and shared code are not.
-<FilesMatch "^(lib|config|config\.sample)\.php$">
+<FilesMatch "^(lib|emails|config|config\.sample)\.php$">
 	Require all denied
 </FilesMatch>
 Options -Indexes

@@ -1,96 +1,154 @@
 # BabyVibes
 
-Online shop for moms and little ones: fun toys and baby goodies delivered across South Africa. It's a plain
-HTML/CSS/JavaScript site with a small PHP back end for payments by **Yoco**. It needs no database or
-WordPress, and runs on any standard cPanel hosting with PHP 7.4 or newer.
+Online shop for moms: baby and kids essentials delivered across South Africa. The storefront is plain
+HTML/CSS/JavaScript; the back end is PHP with a MySQL database, so it runs on any standard cPanel hosting
+(PHP 7.4 or newer). Payments are by **Yoco**, emails are sent by **Brevo**.
+
+## What it does
+
+- **Shop:** homepage, shop with categories, product pages with options (such as colour), cart and checkout.
+- **Payments:** Yoco's secure payment page (cards). Prices are always re-checked on the server.
+- **Customer accounts (optional):** register, log in, order history with tracking, saved address, change or
+  reset password. Shoppers can still check out as guests, or create an account at checkout.
+- **Order tracking:** anyone can track an order with the order number and email (`track.html`).
+- **Automatic emails** in the BabyVibes design, all logged in the admin:
+
+  | Email | Sent when | To |
+  |---|---|---|
+  | Welcome | An account is created | Customer |
+  | Thank you for your order | Yoco confirms payment | Customer |
+  | New paid order | Yoco confirms payment | You |
+  | Your order is on its way (with tracking) | You mark the order shipped | Customer |
+  | Your order has arrived + review request | You mark it delivered | Customer |
+  | Cancelled / refund on its way | You cancel or refund it | Customer |
+  | Reset your password | Customer asks for it | Customer |
+  | New review / payment amount mismatch | A review comes in / Yoco reports a wrong amount | You |
+
+- **Admin back office** at `/admin`:
+  - **Dashboard:** revenue, orders, average order, items sold, new accounts, returning buyers and abandoned
+    checkouts, compared with the previous period; revenue per day; best sellers; sales by category; a to-do list.
+  - **Orders:** search and filter; each order has its history and the actions to mark it shipped (with courier
+    and tracking number), delivered, cancelled or refunded, plus internal notes. CSV export.
+  - **Customers:** accounts with orders, spend and marketing opt-in.
+  - **Reviews:** publish or hide verified customer reviews.
+  - **Emails:** every email sent, and any that failed.
 
 ## What's here
 
 | Path | What it is |
 |---|---|
-| `index.html`, `shop.html`, `product.html`, `cart.html`, `checkout.html`, `thank-you.html`, `about.html`, `faq.html`, `contact.html`, `terms.html`, `privacy.html` | The pages (built by `tools/build.py`) |
+| `*.html` | The pages (built by `tools/build.py` from `tools/pages/`) |
 | `data/products.json` | **Your products and categories.** Edit this to add products |
-| `data/shop.json` | Shop email, WhatsApp number, office hours and delivery prices |
-| `assets/css/style.css` | All styling (colours at the top) |
-| `assets/js/store.js` | Product listings, cart and checkout in the browser |
-| `assets/img/products/` | Product photos |
-| `api/checkout.php` | Re-prices the cart on the server, saves the order, opens Yoco's payment page |
-| `api/webhook.php` | Yoco calls this when a payment succeeds: marks the order paid and sends emails |
-| `api/order-status.php` | Lets the thank-you page show the order |
+| `data/shop.json` | Shop email, WhatsApp number, office hours, delivery prices, Black Friday promotion |
+| `assets/` | Styles, the shop script, logo, product photos, bank logos |
+| `api/config.sample.php` | Settings template: copy to `api/config.php` (passwords and keys; never committed) |
+| `api/install.php` | One-time database setup and admin logins |
+| `api/lib.php`, `api/emails.php` | Shared back-end code and the email templates (blocked from the web) |
+| `api/checkout.php`, `webhook.php`, `order-status.php` | Checkout, Yoco payment confirmation, thank-you page |
+| `api/account.php`, `track.php` | Customer accounts and order tracking |
+| `api/review.php`, `reviews.php` | Leaving reviews, and the published ones for the homepage |
 | `api/setup-webhook.php` | One-time Yoco webhook setup |
-| `api/config.sample.php` | Settings template: copy to `api/config.php` (secret, never committed) |
-| `api/orders/` | Saved orders (blocked from the web) |
-| `tools/build.py`, `tools/pages/` | Page builder and page contents |
+| `admin/` | The admin back office |
+| `tools/` | Page builder and page contents (don't upload) |
 | `tests/` | Local test kit with a fake Yoco (don't upload) |
 
 ## How a sale works
 
-1. The shopper adds products to the cart. The cart is saved in their browser.
-2. At checkout they enter their details. `api/checkout.php` checks the details, **re-prices everything from
-   `data/products.json`** (prices from the browser are ignored), saves the order as *pending* and creates a Yoco
-   checkout.
-3. The shopper pays on Yoco's secure page by card or Instant EFT.
-4. Yoco calls `api/webhook.php`. The signature is checked, the amount must match the order, and then the order is
-   marked **paid**. You get an email with the order and delivery address, and the shopper gets a receipt.
-5. Yoco sends the shopper back to the thank-you page, which shows the confirmed order and empties the cart.
-
-If someone cancels or their payment fails, they return to checkout with their cart intact.
+1. The shopper adds products to the cart (saved in their browser) and goes to checkout. If they're logged in,
+   their details are filled in; otherwise they can check out as a guest or tick "Create an account".
+2. `api/checkout.php` checks the details, **re-prices everything from `data/products.json`** (prices from the
+   browser are ignored), saves the order in the database as *Awaiting payment* and opens Yoco's payment page.
+3. The shopper pays. Yoco calls `api/webhook.php`: the signature is checked, the amount must match, and the order
+   becomes **Paid**. The customer gets "Thank you for your order", and you get the new-order email.
+4. You pack it, then in the admin mark it **Shipped** with the courier and tracking number (the customer is
+   emailed), and later **Delivered** (the customer is asked for a review).
 
 ## Going live
 
-### 1. Upload the site
+You'll need: your cPanel login, your Yoco account, and a free [Brevo](https://www.brevo.com) account.
+
+### 1. Database
+
+In cPanel > **MySQL Databases**:
+
+1. Create a database, for example `babyvibes` (cPanel names it `youruser_babyvibes`).
+2. Create a database user with a strong password (use the password generator).
+3. Add the user to the database with **All privileges**.
+
+### 2. Upload the site
 
 Upload everything **except `tests/` and `tools/`** to the folder of your subdomain (for example
 `public_html/babyvibes`) with cPanel File Manager or FTP. If WordPress is installed there now, use a fresh
 subdomain or remove WordPress first. The site must run on **https** (cPanel > SSL/TLS Status > Run AutoSSL).
 
-### 2. Your details
+### 3. Brevo (emails)
 
-Edit `data/shop.json`:
+1. Sign up at brevo.com (the free plan sends 300 emails a day).
+2. **Add and authenticate your domain:** Brevo > Senders, domains & dedicated IPs > Domains > Add a domain.
+   Brevo shows a few DNS records (a Brevo code, DKIM and DMARC). Add each one in cPanel > **Zone Editor** for your
+   domain, then click Authenticate in Brevo. This is what keeps your emails out of spam, so don't skip it.
+3. Add a sender such as `orders@yourdomain.co.za` (Senders > Add a sender). Create that mailbox in cPanel > Email
+   Accounts too, so replies and bounces arrive somewhere.
+4. Create an API key: Brevo > SMTP & API > API keys > Generate a new API key. Copy it (it starts with `xkeysib-`).
 
-- your email
-- your WhatsApp number in international format without the + (for example `27821234567`)
-- office hours
-- delivery prices: `flatRate` (now R150) and `freeFrom` (now R750) (set `freeFrom` to `0` for no free delivery)
+### 4. Settings
 
-The email and WhatsApp number also appear in the page footers and the contact page, so after changing them,
-rebuild the pages (`python3 tools/build.py`) and upload the `.html` files again.
+Copy `api/config.sample.php` to `api/config.php` and fill in:
 
-### 3. Yoco keys
+- `site_url`: your shop address, for example `https://babyvibes.yourdomain.co.za`
+- `db`: the database name, user and password from step 1 (keep `host=localhost`)
+- `yoco_secret_key`: your **test** secret key (`sk_test_...`) from the Yoco portal
+- `brevo_api_key`, `from_email`: from step 3
+- `orders_email`: where new-order alerts go (empty = the email in `data/shop.json`)
+- `admin_token`: a long random password of your own (at least 16 characters)
 
-1. Copy `api/config.sample.php` to `api/config.php` and open it. Then set these:
-   - `site_url`: your shop address, for example `https://babyvibes.yourdomain.co.za`
-   - `yoco_secret_key`: your **test** secret key (`sk_test_...`) from the Yoco portal (Sales > Payment gateway,
-     or Developers > Keys)
-   - `admin_token`: a long random password of your own
-   - `from_email`: an address on your own domain, for example `orders@yourdomain.co.za` (create it in cPanel >
-     Email Accounts so emails don't land in spam)
-2. Open `https://your-shop/api/setup-webhook.php?token=YOUR_ADMIN_TOKEN` once. It registers the shop with Yoco and
-   saves the webhook secret. You should see "Done".
+Also edit `data/shop.json` with your email, WhatsApp number (international format without the +, for example
+`27821234567`), office hours and delivery prices (`flatRate` is R150 and `freeFrom` R750). These also appear in
+the page footers, so rebuild the pages afterwards (`python3 tools/build.py`) and upload the `.html` files.
 
-### 4. Test order
+### 5. Create the database tables and your admin login
 
-Buy something with a Yoco test card (Yoco's developer docs list them; at the time of writing, card
-`4111 1111 1111 1111`, any future expiry, any CVV). Check that:
+Open `https://your-shop/api/install.php?token=YOUR_ADMIN_TOKEN`. It creates the tables, then asks for your name,
+email and an admin password (at least 12 characters). Sign in at `https://your-shop/admin/`.
 
-- you land on the thank-you page with "Thank you, ..."
-- you receive the new-order email, and the shopper's address receives the receipt
+### 6. Connect Yoco
+
+Open `https://your-shop/api/setup-webhook.php?token=YOUR_ADMIN_TOKEN` once. It registers the shop with Yoco so
+payments are confirmed automatically. You should see "Done".
+
+### 7. Test everything
+
+With the test key, place an order with a Yoco test card (Yoco's developer docs list them; at the time of writing
+`4111 1111 1111 1111`, any future expiry, any CVV), and create an account while you do. Check that:
+
+- the thank-you page shows "Thank you, ..." and the order appears in the admin as **Paid**
+- the welcome, order and new-order emails arrive (and not in spam)
+- marking it shipped and delivered in the admin sends those emails, and `track.html` shows the progress
 - the payment shows in the Yoco portal under test payments
 
-### 5. Switch to live
+Then delete the test order's data if you like (it's only in test mode) or just leave it.
+
+### 8. Switch to live
 
 Put your **live** key (`sk_live_...`) in `api/config.php`, open `api/setup-webhook.php?token=...` again (live mode
 needs its own webhook), and make one small real purchase to confirm.
 
-### 6. Before launch
+### 9. Before launch
 
 - [ ] Your WhatsApp number and email in `data/shop.json` (the placeholder shows as 000 000 0000)
-- [ ] Your business name, registration and address in `terms.html` (required by the ECTA). Have the terms and
-      privacy drafts checked, and remove the "Draft" lines.
+- [ ] Hostdigi (Pty) Ltd's registration number, VAT number (if registered) and address in `terms.html`
+      (required by the ECTA). Have the terms and privacy drafts checked, and remove the "Draft" lines.
 - [ ] Delivery times and returns wording match what you actually offer
-- [ ] The Talking Cactus details match your stock: it's listed as running on 3 x AA batteries. Say on the product
-      whether batteries are included, add the age rating from the box, and listen to the songs (some talking
-      cactus toys have shipped with unsuitable lyrics)
+- [ ] Product details match your stock (batteries, age ratings, materials)
+- [ ] Backups are on: cPanel > Backup (or JetBackup) for both the files and the database. Download a database
+      backup now and then (cPanel > phpMyAdmin > Export), since it holds your orders and customers.
+
+### Keeping it safe
+
+- `api/config.php` holds your passwords: never share it or put it on GitHub (it's in `.gitignore`).
+- The admin signs out after 8 hours without activity, and logins are rate-limited.
+- After setup you can rename or delete `api/install.php`; upload it again if you ever need to add an admin.
+- Keep PHP up to date in cPanel > Select PHP Version (8.1 or newer is best).
 
 ## Adding a product
 
@@ -143,22 +201,28 @@ the real logos, download them from each bank's official brand or media page, sav
 ## Reviews
 
 Only real customers can review. On `review.html` they enter their order number and the email they ordered with,
-and rate the shop overall, for professionalism and for convenience. Each order can be reviewed once. Every order
-confirmation email includes a link to the review page.
+and rate the shop overall, for professionalism and for convenience. Each order can be reviewed once. The
+"Your order has arrived" email asks for a review.
 
-New reviews **don't appear on the site automatically**. You get an email with the review and a block of text ready
-to copy. To publish a review, paste that block into the `reviews` list in `data/reviews.json` (separate entries
-with a comma) and upload the file. The homepage then shows the latest six, the average rating and a "Verified
-buyer" label. While there are no reviews, it shows a short "we're new" message instead.
+New reviews **don't appear on the site automatically**: you get an email, and publish or hide them in
+Admin > Reviews. The homepage shows the latest six, the average ratings and a "Verified buyer" label. While there
+are no reviews, it shows a short "we're new" message instead. Publish genuine reviews as they are: fake, hidden or
+altered reviews that mislead shoppers break the Consumer Protection Act.
 
-Pending reviews are also saved in `api/orders/reviews-pending.json`. Only publish genuine reviews, and don't edit
-what customers wrote; fake or altered reviews break the Consumer Protection Act.
+## Orders and statuses
 
-## Orders
+| Status | Meaning |
+|---|---|
+| Awaiting payment | The shopper went to Yoco but hasn't paid (yet). Counted as an abandoned checkout after an hour |
+| Paid, being packed | Paid: pack it and mark it shipped |
+| Shipped | Tracking details sent to the customer |
+| Delivered | Done; the customer was asked for a review |
+| Cancelled / Refunded | Recorded in the admin. Make actual refunds in the Yoco portal |
+| Check payment amount | Yoco reported a different amount: check it in Yoco before sending anything |
+| Payment page failed | Yoco's page couldn't open (the shopper saw an error and can try again) |
 
-Paid orders arrive by email. Each order is also saved as a file in `api/orders/` (or wherever `orders_dir` points)
-with its status: `pending` (not paid yet), `paid`, `amount_mismatch` (check it in Yoco before sending
-anything) or `checkout_failed`. Your Yoco portal is the record of payments and refunds.
+Your Yoco portal remains the record of payments and refunds. Email delivery details (delivered, opened, bounced)
+are in Brevo > Transactional > Logs.
 
 ## Changing pages
 
@@ -168,11 +232,16 @@ root `.html` files, but they'll be overwritten on the next build.
 
 ## Testing locally
 
-Uses a fake Yoco, so nothing touches real payments:
+Uses SQLite instead of MySQL and a fake Yoco, so nothing touches real payments or sends real emails:
+
+```bash
+php -d auto_prepend_file=$PWD/tests/mock-yoco.php api/install.php --email=you@example.com --password='a-long-test-password'
+```
 
 ```bash
 PHP_CLI_SERVER_WORKERS=4 php -d auto_prepend_file=$PWD/tests/mock-yoco.php -S 127.0.0.1:8765 -t .
 ```
 
-Open http://127.0.0.1:8765, buy something, and click "Pay" on the fake Yoco page. Emails are written to
-`tests/mail.log` and orders to `tests/orders/`.
+Open http://127.0.0.1:8765, buy something, and click "Pay" on the fake Yoco page. The admin is at
+http://127.0.0.1:8765/admin/. Emails are written to `tests/mail.log` (and their HTML to `tests/mail-html/`); the
+database is `tests/test.db`.

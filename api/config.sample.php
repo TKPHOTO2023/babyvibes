@@ -1,30 +1,39 @@
 <?php
 /**
  * BabyVibes server settings. Copy this file to config.php (same folder) and fill it in.
- * config.php holds your secret keys: it is never committed to git and never served to visitors.
+ * config.php holds your passwords and secret keys: it is never committed to git and never
+ * served to visitors (api/.htaccess blocks it).
  */
 return array(
 	// The full web address of the shop, without a trailing slash.
-	'site_url'       => 'https://babyvibes.example.co.za',
+	'site_url'        => 'https://babyvibes.example.co.za',
 
-	// Yoco keys: Yoco app or portal > Sales > Payment gateway (or Developers) > Keys.
-	// Use the TEST secret key (sk_test_...) until you've done a test order, then switch to the LIVE key.
+	// MySQL database: create it in cPanel > MySQL Databases (see README, "Going live").
+	'db'              => array(
+		'dsn'      => 'mysql:host=localhost;dbname=cpaneluser_babyvibes;charset=utf8mb4',
+		'user'     => 'cpaneluser_bvuser',
+		'password' => 'the-database-password',
+	),
+
+	// Yoco: Yoco portal > Sales > Payment gateway (or Developers) > Keys.
+	// Use the TEST secret key (sk_test_...) until a test order works, then the LIVE key.
 	'yoco_secret_key' => 'sk_test_REPLACE_ME',
 
-	// Filled in automatically when you open api/setup-webhook.php once (see README).
-	// You can also paste the webhook secret (whsec_...) here yourself.
+	// Saved automatically when you open api/setup-webhook.php. Leave empty.
 	'yoco_webhook_secret' => '',
 
-	// A long random password that protects api/setup-webhook.php. Change it.
-	'admin_token'    => 'change-me-to-a-long-random-string',
+	// Brevo (emails): Brevo > SMTP & API > API keys > Generate a new API key (starts with xkeysib-).
+	'brevo_api_key'   => 'xkeysib-REPLACE_ME',
 
-	// Order notifications go here. Leave empty to use the email in data/shop.json.
-	'orders_email'   => '',
+	// Emails come from this address. It must be on your own domain and the domain must be
+	// verified in Brevo (Senders, domains & dedicated IPs > Domains), or emails go to spam.
+	'from_email'      => 'orders@babyvibes.example.co.za',
+	'from_name'       => 'BabyVibes',
 
-	// The "From" address for order emails. Use an address on your own domain so emails aren't marked as spam.
-	'from_email'     => 'orders@babyvibes.example.co.za',
+	// New-order and new-review alerts go here. Empty = the email in data/shop.json.
+	'orders_email'    => '',
 
-	// Where orders are saved. The default folder is protected by api/orders/.htaccess.
-	// A folder outside public_html is even safer, for example '/home/youruser/babyvibes-orders'.
-	'orders_dir'     => __DIR__ . '/orders',
+	// A long random password (at least 16 characters) that protects api/install.php and
+	// api/setup-webhook.php. Change it.
+	'admin_token'     => 'change-me-to-a-long-random-string',
 );

@@ -5,6 +5,10 @@
  */
 define( 'BV_CONFIG', __DIR__ . '/config.php' );
 define( 'BV_MAIL_LOG', __DIR__ . '/mail.log' );
+if ( ! is_dir( __DIR__ . '/mail-html' ) ) {
+	mkdir( __DIR__ . '/mail-html' );
+}
+define( 'BV_MAIL_HTML_DIR', __DIR__ . '/mail-html' );
 define( 'BV_YOCO_MOCK', 'bv_test_yoco' );
 
 function bv_test_yoco( $method, $path, $body ) {
