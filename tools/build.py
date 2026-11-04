@@ -11,7 +11,6 @@ Run it after changing a page, the header/footer, or the contact details in data/
 Products do NOT need a rebuild: they're read from data/products.json in the browser.
 
 Placeholders you can use in pages:
-    {{cactus}}            the Talking Cactus illustration
     {{icon:NAME}}         an icon (truck, lock, heart, chat, star, gift, mail)
     {{email}} {{whatsapp}} {{whatsapp_display}} {{hours}}
     {{flat_rate}} {{free_from}}   delivery prices from data/shop.json, e.g. R99
@@ -44,11 +43,22 @@ ICONS = {
     "mail": '<path d="M3 5h18v14H3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M3 6l9 7 9-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
 }
 
-LOGO = ('<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="#FFE3D6"/>'
-        '<rect x="12" y="8" width="16" height="22" rx="8" fill="#6CC285" stroke="#2E2A3B" stroke-width="2"/>'
-        '<circle cx="17" cy="17" r="1.8" fill="#2E2A3B"/><circle cx="23" cy="17" r="1.8" fill="#2E2A3B"/>'
-        '<path d="M16.5 21.5q3.5 3 7 0" fill="none" stroke="#2E2A3B" stroke-width="1.8" stroke-linecap="round"/>'
-        '<rect x="10" y="28" width="20" height="6" rx="2" fill="#FFB86B" stroke="#2E2A3B" stroke-width="2"/></svg>')
+# Wordmark in the logo colours. If you save the real logo as assets/img/logo.svg (or .png / .webp),
+# the header and footer use that file instead.
+WORDMARK = ('<span class="wordmark"><span class="wm-baby">Baby</span><span class="wm-vibes">Vibes</span>'
+            '<svg class="wm-swoosh" viewBox="0 0 120 16" aria-hidden="true" preserveAspectRatio="none">'
+            '<path d="M2 11 C 30 4, 70 3, 100 8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>'
+            '<path d="M110 13.5c-2.6-1.7-5.2-3.6-5.2-6 0-1.5 1.1-2.6 2.5-2.6.9 0 1.9.5 2.7 1.6.8-1.1 1.8-1.6 2.7-1.6 '
+            '1.4 0 2.5 1.1 2.5 2.6 0 2.4-2.6 4.3-5.2 6z" fill="currentColor"/></svg></span>')
+
+
+def logo_html():
+    for ext in ("svg", "png", "webp"):
+        if (ROOT / "assets" / "img" / f"logo.{ext}").exists():
+            return f'<img class="logo-img" src="assets/img/logo.{ext}" alt="BabyVibes" width="613" height="176">'
+    return WORDMARK
+
+
 CART_ICON = ('<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.5L20.5 8H6.2" '
              'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
              '<circle cx="10" cy="20" r="1.5" fill="currentColor"/><circle cx="17" cy="20" r="1.5" fill="currentColor"/></svg>')
@@ -74,7 +84,6 @@ def icon(name):
 def fill(text):
     delivery = SHOP["delivery"]
     values = {
-        "cactus": (ROOT / "tools" / "cactus.svg").read_text().strip(),
         "email": SHOP["email"],
         "whatsapp": SHOP["whatsapp"],
         "whatsapp_display": wa_display(SHOP["whatsapp"]),
@@ -153,7 +162,7 @@ def layout(meta, body):
 <meta property="og:title" content="{meta["title"]}">
 <meta property="og:description" content="{meta["description"]}">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#FFF1EA">
+<meta name="theme-color" content="#FDF0F4">
 {'<meta name="robots" content="noindex">' if meta.get("noindex") else ""}
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -166,7 +175,7 @@ def layout(meta, body):
 {announce}
 <header class="site-header">
  <div class="wrap">
-  <a class="logo" href="index.html" aria-label="BabyVibes home">{LOGO}<span>Baby<span>Vibes</span></span></a>
+  <a class="logo" href="index.html" aria-label="BabyVibes home">{logo_html()}</a>
   <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">{MENU_ICON}</button>
   <nav class="nav" id="site-nav" aria-label="Main"><ul>{nav}</ul></nav>
   <a class="cart-link" href="cart.html" aria-label="Cart">{CART_ICON}<span class="cart-count" data-count="0">0</span></a>
@@ -179,8 +188,8 @@ def layout(meta, body):
  <div class="wrap">
   <div class="footer-grid">
    <div>
-    <a class="logo" href="index.html">{LOGO}<span>Baby<span>Vibes</span></span></a>
-    <p>Fun toys and baby goodies, picked by moms and delivered across South Africa.</p>
+    <a class="logo" href="index.html" aria-label="BabyVibes home">{logo_html()}</a>
+    <p>Baby and kids essentials for busy moms: feeding, toys, baby gear and more, delivered across South Africa.</p>
    </div>
    <div>
     <h2>Shop</h2>
