@@ -19,8 +19,8 @@ noindex: yes
     <legend>Your order</legend>
     <p class="hint" style="margin:0">We only publish reviews from real customers, so we check your order number (it's in your confirmation email, for example BV261102-A1B2C3).</p>
     <div class="row">
-     <div class="field"><label for="order">Order number</label><input id="order" name="order" required autocomplete="off" placeholder="BV261102-A1B2C3"></div>
-     <div class="field"><label for="email">Email used for the order</label><input id="email" name="email" type="email" autocomplete="email" required></div>
+     <div class="field"><label for="order">Order number</label><input id="order" name="order" required autocomplete="off" placeholder="BV261102-A1B2C3" data-cs-mask data-hj-suppress></div>
+     <div class="field"><label for="email">Email used for the order</label><input id="email" name="email" type="email" autocomplete="email" required data-cs-mask data-hj-suppress></div>
     </div>
    </fieldset>
    <fieldset>
@@ -28,15 +28,15 @@ noindex: yes
     <div class="field stars-field"><span class="label" id="l-rating">Overall</span><div class="stars" data-name="rating" role="radiogroup" aria-labelledby="l-rating"></div></div>
     <div class="field stars-field"><span class="label" id="l-prof">Professionalism <span class="hint">communication, packaging, service</span></span><div class="stars" data-name="professionalism" role="radiogroup" aria-labelledby="l-prof"></div></div>
     <div class="field stars-field"><span class="label" id="l-conv">Convenience <span class="hint">easy ordering, payment and delivery</span></span><div class="stars" data-name="convenience" role="radiogroup" aria-labelledby="l-conv"></div></div>
-    <div class="field"><label for="text">Your review</label><textarea id="text" name="text" rows="5" maxlength="800" required placeholder="What did you love? How was delivery?"></textarea></div>
+    <div class="field"><label for="text">Your review</label><textarea id="text" name="text" rows="5" maxlength="800" required placeholder="What did you love? How was delivery?" data-cs-mask data-hj-suppress></textarea></div>
    </fieldset>
    <fieldset>
     <legend>How to show your name</legend>
     <div class="row">
-     <div class="field"><label for="name">Name <span class="hint">for example Thandi M.</span></label><input id="name" name="name" maxlength="40" required></div>
-     <div class="field"><label for="location">Town <span class="hint">optional</span></label><input id="location" name="location" maxlength="40" placeholder="Durban"></div>
+     <div class="field"><label for="name">Name <span class="hint">for example Thandi M.</span></label><input id="name" name="name" maxlength="40" required data-cs-mask data-hj-suppress></div>
+     <div class="field"><label for="location">Town <span class="hint">optional</span></label><input id="location" name="location" maxlength="40" placeholder="Durban" data-cs-mask data-hj-suppress></div>
     </div>
-    <div class="hp" aria-hidden="true"><label for="website">Leave this empty</label><input id="website" name="website" tabindex="-1" autocomplete="off"></div>
+    <div class="hp" aria-hidden="true"><label for="website">Leave this empty</label><input id="website" name="website" tabindex="-1" autocomplete="off" data-cs-mask data-hj-suppress></div>
    </fieldset>
    <p class="hint">We check reviews before they appear on the site. We show only your name and town, never your email or order number.</p>
    <button class="btn btn--block" id="send-review" type="submit">Send my review</button>

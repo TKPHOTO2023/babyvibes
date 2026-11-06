@@ -164,8 +164,24 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     return head, body
 
 
+def hotjar():
+    """Hotjar (Contentsquare) session recordings and heatmaps: loaded only after the shopper accepts cookies."""
+    src = SHOP.get("hotjarSrc", "").strip()
+    if not re.fullmatch(r"https://t\.contentsquare\.net/uxa/[0-9a-f]+\.js", src):
+        return ""
+    return f"""<script>
+window.bvLoadHotjar = function () {{
+  if (window.bvHotjarLoaded) return;
+  window.bvHotjarLoaded = true;
+  var s = document.createElement('script'); s.defer = true; s.src = '{src}';
+  document.head.appendChild(s);
+}};
+try {{ if (localStorage.getItem('bv-consent') === 'granted') window.bvLoadHotjar(); }} catch (e) {{}}
+</script>"""
+
+
 CONSENT = """<div class="consent" id="consent" role="region" aria-label="Cookie choice" hidden>
- <p>We use cookies to see how our shop is used and to improve it, and to measure our ads.
+ <p>We use cookies and anonymous visit recordings to see how our shop is used and to improve it, and to measure our ads.
  Your cart works either way. <a href="privacy.html#cookies">Read more</a></p>
  <div class="consent-btns"><button class="btn btn--small btn--ghost" type="button" data-consent="denied">No thanks</button>
  <button class="btn btn--small" type="button" data-consent="granted">Accept</button></div>
@@ -190,13 +206,15 @@ def layout(meta, body):
         announce = f'<div class="announce">{free_text}</div>' if free_text else ""
     year = datetime.date.today().year
     gtm_head, gtm_body = tag_manager()
-    consent = CONSENT if gtm_head else ""
-    cookie_link = ' &middot; <a href="#" data-consent-open>Cookie settings</a>' if gtm_head else ""
+    hj = hotjar()
+    consent = CONSENT if (gtm_head or hj) else ""
+    cookie_link = ' &middot; <a href="#" data-consent-open>Cookie settings</a>' if consent else ""
     return f"""<!doctype html>
 <html lang="en-ZA">
 <head>
 <meta charset="utf-8">
 {gtm_head}
+{hj}
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{meta["title"]}</title>
 <meta name="description" content="{meta["description"]}">

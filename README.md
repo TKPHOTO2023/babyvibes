@@ -39,7 +39,7 @@ HTML/CSS/JavaScript; the back end is PHP with a MySQL database, so it runs on an
 |---|---|
 | `*.html` | The pages (built by `tools/build.py` from `tools/pages/`) |
 | `data/products.json` | **Your products and categories.** Edit this to add products |
-| `data/shop.json` | Shop email, WhatsApp number, office hours, delivery prices, Black Friday promotion, Google Tag Manager ID |
+| `data/shop.json` | Shop email, WhatsApp number, office hours, delivery prices, Black Friday promotion, Google Tag Manager ID, Hotjar code |
 | `assets/` | Styles, the shop script, logo, product photos, bank logos |
 | `api/config.sample.php` | Settings template: copy to `api/config.php` (passwords and keys; never committed) |
 | `api/install.php` | One-time database setup and admin logins |
@@ -212,6 +212,19 @@ The shop sends these GA4 ecommerce events to Tag Manager, with product, colour, 
 
 The admin dashboard stays the record of real orders and revenue; GA4 adds where visitors come from, what they
 look at and where they drop off.
+
+## Hotjar (session recordings and heatmaps)
+
+Hotjar by Contentsquare records visits and builds heatmaps, so you can watch where shoppers click, scroll and get
+stuck. The tracking code is `hotjarSrc` in `data/shop.json` (`https://t.contentsquare.net/uxa/39689827b4ce4.js`).
+
+- It loads **only after a shopper clicks Accept** on the cookie banner, and not at all if they decline
+  (session recordings need consent under POPIA). The admin is never recorded.
+- Everything people type is hidden from recordings, along with the parts of pages that show personal details:
+  checkout, account, password reset, order tracking, reviews and the thank-you page (`data-cs-mask` and
+  `data-hj-suppress` on those fields and areas).
+- Recordings and heatmaps appear in your Hotjar / Contentsquare account a few minutes after accepted visits.
+  If nothing shows after a day, check the site address is added to the project in Hotjar's settings.
 
 ## Black Friday and other promotions
 

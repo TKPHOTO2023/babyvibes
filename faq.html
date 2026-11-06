@@ -19,6 +19,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-T7QQLXGG');</script>
 <!-- End Google Tag Manager -->
+<script>
+window.bvLoadHotjar = function () {
+  if (window.bvHotjarLoaded) return;
+  window.bvHotjarLoaded = true;
+  var s = document.createElement('script'); s.defer = true; s.src = 'https://t.contentsquare.net/uxa/39689827b4ce4.js';
+  document.head.appendChild(s);
+};
+try { if (localStorage.getItem('bv-consent') === 'granted') window.bvLoadHotjar(); } catch (e) {}
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FAQ & Delivery | BabyVibes</title>
 <meta name="description" content="Delivery times and costs, payments, returns and other questions about shopping at BabyVibes.">
@@ -102,7 +111,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
  </div>
 </footer>
 <div class="consent" id="consent" role="region" aria-label="Cookie choice" hidden>
- <p>We use cookies to see how our shop is used and to improve it, and to measure our ads.
+ <p>We use cookies and anonymous visit recordings to see how our shop is used and to improve it, and to measure our ads.
  Your cart works either way. <a href="privacy.html#cookies">Read more</a></p>
  <div class="consent-btns"><button class="btn btn--small btn--ghost" type="button" data-consent="denied">No thanks</button>
  <button class="btn btn--small" type="button" data-consent="granted">Accept</button></div>

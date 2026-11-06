@@ -6,7 +6,7 @@ nav: account
 noindex: yes
 ---
 <section class="section">
- <div class="wrap" id="account" aria-live="polite"><p class="empty">Loading...</p></div>
+ <div class="wrap" id="account" data-cs-mask data-hj-suppress aria-live="polite"><p class="empty">Loading...</p></div>
 </section>
 
 <template id="tpl-auth">
@@ -16,8 +16,8 @@ noindex: yes
    <h2>Log in</h2>
    <p class="alert" id="login-alert" role="alert" hidden></p>
    <form class="form" id="login-form" novalidate>
-    <div class="field"><label for="li-email">Email</label><input id="li-email" name="email" type="email" autocomplete="username" required></div>
-    <div class="field"><label for="li-pass">Password</label><input id="li-pass" name="password" type="password" autocomplete="current-password" required></div>
+    <div class="field"><label for="li-email">Email</label><input id="li-email" name="email" type="email" autocomplete="username" required data-cs-mask data-hj-suppress></div>
+    <div class="field"><label for="li-pass">Password</label><input id="li-pass" name="password" type="password" autocomplete="current-password" required data-cs-mask data-hj-suppress></div>
     <button class="btn btn--block" type="submit">Log in</button>
     <p class="center"><a href="#" data-forgot>Forgot your password?</a></p>
    </form>
@@ -27,7 +27,7 @@ noindex: yes
    <p>Enter your email and we'll send you a link to choose a new password.</p>
    <p class="alert" id="forgot-alert" role="alert" hidden></p>
    <form class="form" id="forgot-form" novalidate>
-    <div class="field"><label for="fg-email">Email</label><input id="fg-email" name="email" type="email" autocomplete="email" required></div>
+    <div class="field"><label for="fg-email">Email</label><input id="fg-email" name="email" type="email" autocomplete="email" required data-cs-mask data-hj-suppress></div>
     <button class="btn btn--block" type="submit">Send the reset link</button>
     <p class="center"><a href="#" data-login>Back to log in</a></p>
    </form>
@@ -38,13 +38,13 @@ noindex: yes
    <p class="alert" id="register-alert" role="alert" hidden></p>
    <form class="form" id="register-form" novalidate>
     <div class="row">
-     <div class="field"><label for="rg-first">First name</label><input id="rg-first" name="firstName" autocomplete="given-name" required></div>
-     <div class="field"><label for="rg-last">Last name</label><input id="rg-last" name="lastName" autocomplete="family-name" required></div>
+     <div class="field"><label for="rg-first">First name</label><input id="rg-first" name="firstName" autocomplete="given-name" required data-cs-mask data-hj-suppress></div>
+     <div class="field"><label for="rg-last">Last name</label><input id="rg-last" name="lastName" autocomplete="family-name" required data-cs-mask data-hj-suppress></div>
     </div>
-    <div class="field"><label for="rg-email">Email</label><input id="rg-email" name="email" type="email" autocomplete="email" required></div>
-    <div class="field"><label for="rg-pass">Password <span class="hint">at least 8 characters</span></label><input id="rg-pass" name="password" type="password" minlength="8" autocomplete="new-password" required></div>
-    <label class="check"><input type="checkbox" name="marketing"> Email me about new products and specials (you can stop any time)</label>
-    <div class="hp" aria-hidden="true"><label for="rg-web">Leave this empty</label><input id="rg-web" name="website" tabindex="-1" autocomplete="off"></div>
+    <div class="field"><label for="rg-email">Email</label><input id="rg-email" name="email" type="email" autocomplete="email" required data-cs-mask data-hj-suppress></div>
+    <div class="field"><label for="rg-pass">Password <span class="hint">at least 8 characters</span></label><input id="rg-pass" name="password" type="password" minlength="8" autocomplete="new-password" required data-cs-mask data-hj-suppress></div>
+    <label class="check"><input type="checkbox" name="marketing" data-cs-mask data-hj-suppress> Email me about new products and specials (you can stop any time)</label>
+    <div class="hp" aria-hidden="true"><label for="rg-web">Leave this empty</label><input id="rg-web" name="website" tabindex="-1" autocomplete="off" data-cs-mask data-hj-suppress></div>
     <button class="btn btn--block" type="submit">Create my account</button>
     <p class="hint">By creating an account you agree to our <a href="terms.html">terms</a> and <a href="privacy.html">privacy policy</a>.</p>
    </form>
@@ -65,22 +65,22 @@ noindex: yes
     <p class="alert" id="details-alert" role="status" hidden></p>
     <form class="form" id="details-form" novalidate>
      <div class="row">
-      <div class="field"><label for="d-first">First name</label><input id="d-first" name="firstName" autocomplete="given-name" required></div>
-      <div class="field"><label for="d-last">Last name</label><input id="d-last" name="lastName" autocomplete="family-name" required></div>
+      <div class="field"><label for="d-first">First name</label><input id="d-first" name="firstName" autocomplete="given-name" required data-cs-mask data-hj-suppress></div>
+      <div class="field"><label for="d-last">Last name</label><input id="d-last" name="lastName" autocomplete="family-name" required data-cs-mask data-hj-suppress></div>
      </div>
-     <div class="field"><label for="d-email">Email</label><input id="d-email" name="email" type="email" disabled></div>
-     <div class="field"><label for="d-phone">Cellphone</label><input id="d-phone" name="phone" type="tel" autocomplete="tel"></div>
-     <div class="field"><label for="d-a1">Street address</label><input id="d-a1" name="address1" autocomplete="address-line1"></div>
-     <div class="field"><label for="d-a2">Complex, unit or building <span class="hint">optional</span></label><input id="d-a2" name="address2" autocomplete="address-line2"></div>
+     <div class="field"><label for="d-email">Email</label><input id="d-email" name="email" type="email" disabled data-cs-mask data-hj-suppress></div>
+     <div class="field"><label for="d-phone">Cellphone</label><input id="d-phone" name="phone" type="tel" autocomplete="tel" data-cs-mask data-hj-suppress></div>
+     <div class="field"><label for="d-a1">Street address</label><input id="d-a1" name="address1" autocomplete="address-line1" data-cs-mask data-hj-suppress></div>
+     <div class="field"><label for="d-a2">Complex, unit or building <span class="hint">optional</span></label><input id="d-a2" name="address2" autocomplete="address-line2" data-cs-mask data-hj-suppress></div>
      <div class="row">
-      <div class="field"><label for="d-sub">Suburb</label><input id="d-sub" name="suburb" autocomplete="address-level3"></div>
-      <div class="field"><label for="d-city">City or town</label><input id="d-city" name="city" autocomplete="address-level2"></div>
+      <div class="field"><label for="d-sub">Suburb</label><input id="d-sub" name="suburb" autocomplete="address-level3" data-cs-mask data-hj-suppress></div>
+      <div class="field"><label for="d-city">City or town</label><input id="d-city" name="city" autocomplete="address-level2" data-cs-mask data-hj-suppress></div>
      </div>
      <div class="row">
-      <div class="field"><label for="d-prov">Province</label><select id="d-prov" name="province" autocomplete="address-level1"><option value="">Choose...</option><option>Eastern Cape</option><option>Free State</option><option>Gauteng</option><option>KwaZulu-Natal</option><option>Limpopo</option><option>Mpumalanga</option><option>North West</option><option>Northern Cape</option><option>Western Cape</option></select></div>
-      <div class="field"><label for="d-pc">Postal code</label><input id="d-pc" name="postcode" inputmode="numeric" maxlength="4" autocomplete="postal-code"></div>
+      <div class="field"><label for="d-prov">Province</label><select id="d-prov" name="province" autocomplete="address-level1" data-cs-mask data-hj-suppress><option value="">Choose...</option><option>Eastern Cape</option><option>Free State</option><option>Gauteng</option><option>KwaZulu-Natal</option><option>Limpopo</option><option>Mpumalanga</option><option>North West</option><option>Northern Cape</option><option>Western Cape</option></select></div>
+      <div class="field"><label for="d-pc">Postal code</label><input id="d-pc" name="postcode" inputmode="numeric" maxlength="4" autocomplete="postal-code" data-cs-mask data-hj-suppress></div>
      </div>
-     <label class="check"><input type="checkbox" name="marketing"> Email me about new products and specials</label>
+     <label class="check"><input type="checkbox" name="marketing" data-cs-mask data-hj-suppress> Email me about new products and specials</label>
      <button class="btn btn--block" type="submit">Save my details</button>
     </form>
    </div>
@@ -88,8 +88,8 @@ noindex: yes
     <h2>Change password</h2>
     <p class="alert" id="password-alert" role="status" hidden></p>
     <form class="form" id="password-form" novalidate>
-     <div class="field"><label for="p-cur">Current password</label><input id="p-cur" name="currentPassword" type="password" autocomplete="current-password" required></div>
-     <div class="field"><label for="p-new">New password <span class="hint">at least 8 characters</span></label><input id="p-new" name="newPassword" type="password" minlength="8" autocomplete="new-password" required></div>
+     <div class="field"><label for="p-cur">Current password</label><input id="p-cur" name="currentPassword" type="password" autocomplete="current-password" required data-cs-mask data-hj-suppress></div>
+     <div class="field"><label for="p-new">New password <span class="hint">at least 8 characters</span></label><input id="p-new" name="newPassword" type="password" minlength="8" autocomplete="new-password" required data-cs-mask data-hj-suppress></div>
      <button class="btn btn--ghost btn--block" type="submit">Change password</button>
     </form>
    </div>

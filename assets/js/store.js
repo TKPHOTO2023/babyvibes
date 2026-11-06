@@ -509,7 +509,7 @@
 			box.innerHTML = '<p class="hint">Have an account? <a href="account.html?next=checkout.html">Log in</a> for faster checkout.</p>' +
 				'<label class="check"><input type="checkbox" name="createAccount" id="createAccount"> Create an account to track this order and check out faster next time</label>' +
 				'<div id="account-fields" hidden><div class="field"><label for="password">Choose a password <span class="hint">at least 8 characters</span></label>' +
-				'<input id="password" name="password" type="password" minlength="8" autocomplete="new-password"></div>' +
+				'<input id="password" name="password" type="password" minlength="8" autocomplete="new-password" data-cs-mask data-hj-suppress></div>' +
 				'<label class="check"><input type="checkbox" name="marketing"> Email me about new products and specials (you can stop any time)</label></div>';
 			$('#createAccount').addEventListener('change', function () {
 				$('#account-fields').hidden = !this.checked;
@@ -1024,6 +1024,8 @@
 			if (typeof window.gtag === 'function') {
 				window.gtag('consent', 'update', { analytics_storage: v, ad_storage: v, ad_user_data: v, ad_personalization: v });
 			}
+			if (v === 'granted' && typeof window.bvLoadHotjar === 'function') { window.bvLoadHotjar(); }
+			if (v === 'denied' && window.bvHotjarLoaded) { location.reload(); } // stop a recording that already started
 			track('consent_update', { consent: v });
 			banner.hidden = true;
 		});

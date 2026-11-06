@@ -13,35 +13,35 @@ noindex: yes
     <fieldset>
      <legend>Your details</legend>
      <div class="row">
-      <div class="field"><label for="firstName">First name</label><input id="firstName" name="firstName" autocomplete="given-name" required></div>
-      <div class="field"><label for="lastName">Last name</label><input id="lastName" name="lastName" autocomplete="family-name" required></div>
+      <div class="field"><label for="firstName">First name</label><input id="firstName" name="firstName" autocomplete="given-name" required data-cs-mask data-hj-suppress></div>
+      <div class="field"><label for="lastName">Last name</label><input id="lastName" name="lastName" autocomplete="family-name" required data-cs-mask data-hj-suppress></div>
      </div>
      <div class="row">
-      <div class="field"><label for="email">Email <span class="hint">for your receipt and tracking</span></label><input id="email" name="email" type="email" autocomplete="email" required></div>
-      <div class="field"><label for="phone">Cellphone <span class="hint">for the courier</span></label><input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="082 123 4567" required></div>
+      <div class="field"><label for="email">Email <span class="hint">for your receipt and tracking</span></label><input id="email" name="email" type="email" autocomplete="email" required data-cs-mask data-hj-suppress></div>
+      <div class="field"><label for="phone">Cellphone <span class="hint">for the courier</span></label><input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="082 123 4567" required data-cs-mask data-hj-suppress></div>
      </div>
     </fieldset>
     <fieldset>
      <legend>Delivery address</legend>
-     <div class="field"><label for="address1">Street address</label><input id="address1" name="address1" autocomplete="address-line1" required></div>
-     <div class="field"><label for="address2">Complex, unit or building <span class="hint">optional</span></label><input id="address2" name="address2" autocomplete="address-line2"></div>
+     <div class="field"><label for="address1">Street address</label><input id="address1" name="address1" autocomplete="address-line1" required data-cs-mask data-hj-suppress></div>
+     <div class="field"><label for="address2">Complex, unit or building <span class="hint">optional</span></label><input id="address2" name="address2" autocomplete="address-line2" data-cs-mask data-hj-suppress></div>
      <div class="row">
-      <div class="field"><label for="suburb">Suburb</label><input id="suburb" name="suburb" autocomplete="address-level3" required></div>
-      <div class="field"><label for="city">City or town</label><input id="city" name="city" autocomplete="address-level2" required></div>
+      <div class="field"><label for="suburb">Suburb</label><input id="suburb" name="suburb" autocomplete="address-level3" required data-cs-mask data-hj-suppress></div>
+      <div class="field"><label for="city">City or town</label><input id="city" name="city" autocomplete="address-level2" required data-cs-mask data-hj-suppress></div>
      </div>
      <div class="row">
       <div class="field"><label for="province">Province</label>
-       <select id="province" name="province" autocomplete="address-level1" required>
+       <select id="province" name="province" autocomplete="address-level1" required data-cs-mask data-hj-suppress>
         <option value="">Choose...</option><option>Eastern Cape</option><option>Free State</option><option>Gauteng</option><option>KwaZulu-Natal</option><option>Limpopo</option><option>Mpumalanga</option><option>North West</option><option>Northern Cape</option><option>Western Cape</option>
        </select></div>
-      <div class="field"><label for="postcode">Postal code</label><input id="postcode" name="postcode" autocomplete="postal-code" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required></div>
+      <div class="field"><label for="postcode">Postal code</label><input id="postcode" name="postcode" autocomplete="postal-code" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required data-cs-mask data-hj-suppress></div>
      </div>
-     <div class="field"><label for="notes">Delivery notes <span class="hint">optional</span></label><textarea id="notes" name="notes" rows="3" maxlength="500" placeholder="Gate code, best time to deliver..."></textarea></div>
-     <div class="hp" aria-hidden="true"><label for="website">Leave this empty</label><input id="website" name="website" tabindex="-1" autocomplete="off"></div>
+     <div class="field"><label for="notes">Delivery notes <span class="hint">optional</span></label><textarea id="notes" name="notes" rows="3" maxlength="500" placeholder="Gate code, best time to deliver..." data-cs-mask data-hj-suppress></textarea></div>
+     <div class="hp" aria-hidden="true"><label for="website">Leave this empty</label><input id="website" name="website" tabindex="-1" autocomplete="off" data-cs-mask data-hj-suppress></div>
     </fieldset>
     <fieldset>
      <legend>Your account</legend>
-     <div id="account-box"><p class="hint">Checking...</p></div>
+     <div id="account-box" data-cs-mask data-hj-suppress><p class="hint">Checking...</p></div>
     </fieldset>
     <p>By paying you agree to our <a href="terms.html">terms &amp; returns</a>. We use your details only to deliver your order (see our <a href="privacy.html">privacy policy</a>).</p>
     <button class="btn btn--block" id="pay" type="submit">Pay securely</button>

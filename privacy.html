@@ -19,6 +19,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-T7QQLXGG');</script>
 <!-- End Google Tag Manager -->
+<script>
+window.bvLoadHotjar = function () {
+  if (window.bvHotjarLoaded) return;
+  window.bvHotjarLoaded = true;
+  var s = document.createElement('script'); s.defer = true; s.src = 'https://t.contentsquare.net/uxa/39689827b4ce4.js';
+  document.head.appendChild(s);
+};
+try { if (localStorage.getItem('bv-consent') === 'granted') window.bvLoadHotjar(); } catch (e) {}
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Privacy policy | BabyVibes</title>
 <meta name="description" content="How BabyVibes collects and uses your personal information.">
@@ -66,7 +75,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
    <p>You can update your details on the My account page at any time. You may also ask to see, correct or delete your personal information by emailing hello@babyvibes.co.za. If you're unhappy with how we handle your information, you may complain to the Information Regulator (inforegulator.org.za).</p>
    <h2 id="cookies">Cookies and storage</h2>
    <p>Your cart and checkout details are saved in your own browser so they're there when you come back, and a session cookie keeps you logged in to your account.</p>
-   <p>With your permission, we also use Google Analytics (through Google Tag Manager) to understand how people find and use our shop, for example which pages are visited and which products are added to carts, and to measure our advertising. These cookies are only set if you click <strong>Accept</strong> on the cookie banner. You can change your choice at any time with the <a href="#" data-consent-open>Cookie settings</a> link at the bottom of every page. Google's use of this data is described in its privacy policy (policies.google.com/privacy).</p>
+   <p>With your permission, we also use Google Analytics (through Google Tag Manager) to understand how people find and use our shop, for example which pages are visited and which products are added to carts, and to measure our advertising. We also use Hotjar (by Contentsquare) to record anonymous visits and make heatmaps, so we can see where the shop is confusing and fix it. Recordings never include what you type into forms: names, addresses, phone numbers, emails and passwords are hidden. These cookies and recordings are only used if you click <strong>Accept</strong> on the cookie banner. You can change your choice at any time with the <a href="#" data-consent-open>Cookie settings</a> link at the bottom of every page. Google's use of this data is described in its privacy policy (policies.google.com/privacy).</p>
   </div>
  </div>
 </section>
@@ -103,7 +112,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
  </div>
 </footer>
 <div class="consent" id="consent" role="region" aria-label="Cookie choice" hidden>
- <p>We use cookies to see how our shop is used and to improve it, and to measure our ads.
+ <p>We use cookies and anonymous visit recordings to see how our shop is used and to improve it, and to measure our ads.
  Your cart works either way. <a href="privacy.html#cookies">Read more</a></p>
  <div class="consent-btns"><button class="btn btn--small btn--ghost" type="button" data-consent="denied">No thanks</button>
  <button class="btn btn--small" type="button" data-consent="granted">Accept</button></div>
