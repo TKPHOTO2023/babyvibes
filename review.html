@@ -2,6 +2,23 @@
 <html lang="en-ZA">
 <head>
 <meta charset="utf-8">
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+(function () {
+  var c = null;
+  try { c = localStorage.getItem('bv-consent'); } catch (e) {}
+  var on = c === 'granted' ? 'granted' : 'denied';
+  gtag('consent', 'default', { analytics_storage: on, ad_storage: on, ad_user_data: on, ad_personalization: on, wait_for_update: 500 });
+})();
+</script>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-T7QQLXGG');</script>
+<!-- End Google Tag Manager -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Leave a review | BabyVibes</title>
 <meta name="description" content="Tell other moms about your BabyVibes order.">
@@ -17,6 +34,7 @@
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body data-page="review">
+<!-- Google Tag Manager (noscript) --><noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T7QQLXGG" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript><!-- End Google Tag Manager (noscript) -->
 <a class="sr-only" href="#main">Skip to content</a>
 <div class="announce" data-promo-bar data-fallback="Free delivery on orders over R750"><a href="shop.html"><strong>Black Friday special</strong></a><span data-promo-label></span> <span data-countdown="compact"></span></div>
 <header class="site-header">
@@ -96,10 +114,16 @@
   </section>
   <div class="footer-base">
    <span>&copy; 2026 BabyVibes is trading as Hostdigi (Pty) Ltd. Prices in South African rand, including VAT where applicable.</span>
-   <span><a href="terms.html">Terms &amp; returns</a> &middot; <a href="privacy.html">Privacy</a></span>
+   <span><a href="terms.html">Terms &amp; returns</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="#" data-consent-open>Cookie settings</a></span>
   </div>
  </div>
 </footer>
+<div class="consent" id="consent" role="region" aria-label="Cookie choice" hidden>
+ <p>We use cookies to see how our shop is used and to improve it, and to measure our ads.
+ Your cart works either way. <a href="privacy.html#cookies">Read more</a></p>
+ <div class="consent-btns"><button class="btn btn--small btn--ghost" type="button" data-consent="denied">No thanks</button>
+ <button class="btn btn--small" type="button" data-consent="granted">Accept</button></div>
+</div>
 <script src="assets/js/store.js" defer></script>
 </body>
 </html>

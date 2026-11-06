@@ -476,3 +476,13 @@ template { display: none; }
 .order-cols .mini li { display: flex; justify-content: space-between; gap: 12px; }
 .order-cols .mini li:nth-last-child(-n+2) { border-top: 1px solid var(--line); padding-top: 8px; }
 .order-cols .mini li:last-child { border-top: 0; padding-top: 0; }
+
+/* Cookie banner */
+.consent {
+	position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 90; max-width: 720px; margin: 0 auto;
+	background: var(--white); border: 1px solid var(--line); border-radius: 18px; padding: 16px 18px;
+	box-shadow: 0 12px 34px rgba(46, 36, 51, 0.18); display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px;
+}
+.consent[hidden] { display: none; }
+.consent p { margin: 0; flex: 1 1 320px; font-size: 0.95rem; }
+.consent-btns { display: flex; gap: 8px; }

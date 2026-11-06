@@ -39,7 +39,7 @@ HTML/CSS/JavaScript; the back end is PHP with a MySQL database, so it runs on an
 |---|---|
 | `*.html` | The pages (built by `tools/build.py` from `tools/pages/`) |
 | `data/products.json` | **Your products and categories.** Edit this to add products |
-| `data/shop.json` | Shop email, WhatsApp number, office hours, delivery prices, Black Friday promotion |
+| `data/shop.json` | Shop email, WhatsApp number, office hours, delivery prices, Black Friday promotion, Google Tag Manager ID |
 | `assets/` | Styles, the shop script, logo, product photos, bank logos |
 | `api/config.sample.php` | Settings template: copy to `api/config.php` (passwords and keys; never committed) |
 | `api/install.php` | One-time database setup and admin logins |
@@ -175,6 +175,43 @@ needs its own webhook), and make one small real purchase to confirm.
 3. Upload the photos and `data/products.json`. The product appears on the homepage, shop, category and product
    pages straight away, with no rebuild. Check that the file is still valid JSON (paste it into jsonlint.com) if
    the shop stops showing products.
+
+## Google Analytics (through Google Tag Manager)
+
+Every shop page loads your Google Tag Manager container `GTM-T7QQLXGG` (set as `gtmId` in `data/shop.json`;
+the admin is never tracked). A cookie banner asks shoppers first: until they click **Accept**, Google's Consent
+Mode keeps analytics and ad cookies off, and Google only gets anonymous, cookieless signals. Shoppers can change
+their choice with "Cookie settings" in the footer.
+
+The shop sends these GA4 ecommerce events to Tag Manager, with product, colour, quantity and rand values:
+
+| Event | When |
+|---|---|
+| `view_item_list` | Shop, category and homepage product lists are shown |
+| `view_item` | A product page is opened |
+| `add_to_cart` / `remove_from_cart` | Products are added (shop grid or product page) / removed in the cart |
+| `view_cart`, `begin_checkout`, `add_payment_info` | Cart opened, checkout opened, shopper goes to Yoco to pay |
+| `purchase` | The thank-you page confirms payment (with the order number; counted once per order) |
+| `sign_up`, `login` | Account created (on the account page or at checkout), customer logs in |
+
+**One-time setup in Google (about 10 minutes)**, because Tag Manager only sends what you tell it to:
+
+1. **Google Analytics:** analytics.google.com > Admin > Create > Property (time zone South Africa, currency
+   South African rand) > Web data stream for your shop address. Copy the **Measurement ID** (`G-...`).
+2. **Tag Manager** (tagmanager.google.com, container GTM-T7QQLXGG):
+   1. Tags > New > **Google Tag**. Tag ID: your `G-...` ID. Trigger: **Initialization - All Pages**. Save.
+   2. Tags > New > **Google Analytics: GA4 Event**. Measurement ID: your `G-...` ID. Event name: `{{Event}}`.
+      Under More settings > **Ecommerce**, tick **Send Ecommerce data** (data source: Data Layer).
+      Trigger: New > **Custom Event**, event name
+      `view_item_list|view_item|add_to_cart|remove_from_cart|view_cart|begin_checkout|add_payment_info|purchase|sign_up|login`
+      with **Use regex matching** ticked. Save.
+   3. Click **Preview**, open your shop, accept cookies and click around: you should see the events fire. Then
+      click **Submit > Publish**.
+3. In GA4, sales show under Reports > Monetization > Ecommerce purchases (data can take up to a day to appear;
+   Reports > Realtime shows visitors straight away). `purchase` is counted as a key event automatically.
+
+The admin dashboard stays the record of real orders and revenue; GA4 adds where visitors come from, what they
+look at and where they drop off.
 
 ## Black Friday and other promotions
 

@@ -96,6 +96,32 @@
 		return isNaN(d) ? '' : d.toLocaleString('en-ZA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 	}
 
+	// Analytics (Google Tag Manager data layer, GA4 ecommerce format) ---------------------------
+
+	window.dataLayer = window.dataLayer || [];
+	var catNames = {};
+
+	/** Sends one GA4 event to Google Tag Manager. Nothing is sent to Google unless GTM is set up and the shopper accepted cookies. */
+	function track(event, params) {
+		try {
+			if (params && params.ecommerce) { window.dataLayer.push({ ecommerce: null }); } // clear the previous ecommerce object
+			window.dataLayer.push(Object.assign({ event: event }, params || {}));
+		} catch (e) { /* never let analytics break the shop */ }
+	}
+	function gaItem(p, option, qty, index) {
+		var it = { item_id: p.slug, item_name: p.name, item_brand: 'BabyVibes', item_category: catNames[p.category] || p.category, price: Number(p.price), quantity: qty || 1 };
+		if (option) { it.item_variant = option; }
+		if (index !== undefined) { it.index = index; }
+		return it;
+	}
+	function gaCart(c) {
+		return { currency: 'ZAR', value: Number(c.subtotal.toFixed(2)), items: c.lines.map(function (l) { return gaItem(l.product, l.option, l.qty); }) };
+	}
+	function trackList(id, name, products) {
+		if (!products.length) { return; }
+		track('view_item_list', { ecommerce: { item_list_id: id, item_list_name: name, items: products.map(function (p, i) { return gaItem(p, '', 1, i); }) } });
+	}
+
 	function productUrl(p) { return 'product.html?p=' + encodeURIComponent(p.slug); }
 
 	var dataPromise = null;
@@ -110,6 +136,7 @@
 					if (!p.images || !p.images.length) { p.images = ['assets/img/photo-coming-soon.svg']; }
 					bySlug[p.slug] = p;
 				});
+				res[0].categories.forEach(function (c) { catNames[c.slug] = c.name; });
 				return { products: res[0].products, categories: res[0].categories, bySlug: bySlug, shop: res[1] };
 			});
 		}
@@ -214,6 +241,7 @@
 			var p = d.bySlug[btn.getAttribute('data-add')];
 			if (!p) { return; }
 			addToCart(p.slug, 1);
+			track('add_to_cart', { ecommerce: { currency: 'ZAR', value: Number(p.price), items: [gaItem(p, '', 1)] } });
 			toast(esc(p.name) + ' added to your cart. <a href="cart.html">View cart</a>');
 		});
 	});
@@ -225,6 +253,7 @@
 	pages.home = function (d) {
 		renderReviews();
 		renderGrid($('#new-arrivals'), newest(d.products).slice(0, 8));
+		trackList('new_arrivals', 'New arrivals', newest(d.products).slice(0, 8));
 		var featured = d.products.filter(function (p) { return p.featured; }).slice(0, 4);
 		if (featured.length) { renderGrid($('#favourites'), featured); } else if ($('#favourites-section')) { $('#favourites-section').hidden = true; }
 
@@ -272,6 +301,7 @@
 			location.search = params.toString();
 		});
 		renderGrid($('#shop-grid'), list);
+		trackList(current ? 'category_' + current.slug : 'shop', current ? current.name : 'All products', list);
 	};
 
 	pages.product = function (d) {
@@ -282,6 +312,7 @@
 			return;
 		}
 		document.title = p.name + ' | BabyVibes';
+		track('view_item', { ecommerce: { currency: 'ZAR', value: Number(p.price), items: [gaItem(p)] } });
 		var meta = $('meta[name="description"]');
 		if (meta) { meta.setAttribute('content', p.short); }
 		var cat = d.categories.filter(function (c) { return c.slug === p.category; })[0];
@@ -363,6 +394,7 @@
 					return;
 				}
 				addToCart(p.options ? p.slug + '|' + chosen : p.slug, n);
+				track('add_to_cart', { ecommerce: { currency: 'ZAR', value: Number((p.price * n).toFixed(2)), items: [gaItem(p, chosen, n)] } });
 				toast(n + ' x ' + esc(p.name) + (chosen ? ' (' + esc(chosen) + ')' : '') + ' added to your cart. <a href="cart.html">View cart</a>');
 			}
 		});
@@ -427,6 +459,8 @@
 				cart[slug] = Math.min(20, (cart[slug] || 0) + Number(q.getAttribute('data-step')));
 				if (cart[slug] < 1) { delete cart[slug]; }
 			} else if (r) {
+				var gone = pricedCart(d).lines.filter(function (l) { return l.key === r.getAttribute('data-remove'); })[0];
+				if (gone) { track('remove_from_cart', { ecommerce: { currency: 'ZAR', value: gone.total, items: [gaItem(gone.product, gone.option, gone.qty)] } }); }
 				delete cart[r.getAttribute('data-remove')];
 			} else { return; }
 			setCart(cart);
@@ -442,6 +476,8 @@
 			draw();
 		});
 		draw();
+		var vc = pricedCart(d);
+		if (vc.lines.length) { track('view_cart', { ecommerce: gaCart(vc) }); }
 	};
 
 	pages.checkout = function (d) {
@@ -453,6 +489,7 @@
 			return;
 		}
 		$('#checkout-summary').innerHTML = summaryHtml(d, c, true) + '<p class="note"><a href="cart.html">Edit cart</a></p>';
+		track('begin_checkout', { ecommerce: gaCart(c) });
 		if (params.get('cancelled')) { showAlert('Payment cancelled. Your cart is saved, so you can try again whenever you\'re ready.', 'info'); }
 		if (params.get('failed')) { showAlert('The payment didn\'t go through and you haven\'t been charged. Please try again or use another card.', 'error'); }
 
@@ -514,6 +551,8 @@
 				marketing: !!(create && form.elements.marketing.checked)
 			}).then(function (res) {
 				if (res.redirectUrl) {
+					track('add_payment_info', { ecommerce: Object.assign(gaCart(c), { payment_type: 'Yoco' }) });
+					if (create) { track('sign_up', { method: 'checkout' }); }
 					location.href = res.redirectUrl;
 					return;
 				}
@@ -550,6 +589,19 @@
 					if (!o) { return; }
 					if (o.status === 'paid') {
 						setCart({});
+						// Purchase is reported once per order, even if the page is reloaded.
+						if (!store('bv-tracked-' + o.id)) {
+							store('bv-tracked-' + o.id, 1);
+							track('purchase', { ecommerce: {
+								transaction_id: o.id, currency: 'ZAR', value: o.total / 100, shipping: o.delivery / 100,
+								items: o.lines.map(function (l) {
+									var m = /^(.*) \((?:[^:]+): (.+)\)$/.exec(l.name);
+									var it = { item_id: l.slug, item_name: m ? m[1] : l.name, item_brand: 'BabyVibes', price: l.total / l.qty / 100, quantity: l.qty };
+									if (m) { it.item_variant = m[2]; }
+									return it;
+								})
+							} });
+						}
 						root.innerHTML = '<h1>Thank you, ' + esc(o.firstName) + '!</h1>' +
 							'<p class="lead">Your payment went through and your order <strong>' + esc(o.id) + '</strong> is confirmed. ' +
 							'We\'ve emailed you a receipt and we\'ll send your tracking number when it ships.</p>' +
@@ -767,7 +819,7 @@
 				btn.disabled = true;
 				post('api/account.php?action=login', values(login, ['email', 'password'])).then(function (res) {
 					btn.disabled = false;
-					if (res.customer) { done(res); return; }
+					if (res.customer) { track('login', { method: 'email' }); done(res); return; }
 					say($('#login-alert'), res.error);
 				});
 			});
@@ -779,7 +831,7 @@
 				btn.disabled = true;
 				post('api/account.php?action=register', values(reg, ['firstName', 'lastName', 'email', 'password', 'marketing', 'website'])).then(function (res) {
 					btn.disabled = false;
-					if (res.customer) { done(res); return; }
+					if (res.customer) { track('sign_up', { method: 'email' }); done(res); return; }
 					showErrors(reg, res.fields);
 					say($('#register-alert'), res.error);
 				});
@@ -958,6 +1010,28 @@
 			toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
 		});
 	}
+	// Cookie banner (Google Consent Mode): nothing is tracked by Google until the shopper accepts.
+	var banner = $('#consent');
+	if (banner) {
+		var choice = null;
+		try { choice = localStorage.getItem('bv-consent'); } catch (e) { /* private mode */ }
+		if (!choice) { banner.hidden = false; }
+		banner.addEventListener('click', function (e) {
+			var b = e.target.closest('[data-consent]');
+			if (!b) { return; }
+			var v = b.getAttribute('data-consent');
+			try { localStorage.setItem('bv-consent', v); } catch (err) { /* private mode */ }
+			if (typeof window.gtag === 'function') {
+				window.gtag('consent', 'update', { analytics_storage: v, ad_storage: v, ad_user_data: v, ad_personalization: v });
+			}
+			track('consent_update', { consent: v });
+			banner.hidden = true;
+		});
+		document.addEventListener('click', function (e) {
+			if (e.target.closest('[data-consent-open]')) { e.preventDefault(); banner.hidden = false; banner.querySelector('[data-consent="granted"]').focus(); }
+		});
+	}
+
 	updateCount();
 	updateAccountLink();
 	data().then(promo).catch(function () {});

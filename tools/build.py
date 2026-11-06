@@ -137,6 +137,41 @@ def parse(path):
     return meta, raw[m.end():]
 
 
+def tag_manager():
+    """Google Consent Mode defaults + the official Google Tag Manager snippet (head), and its <noscript> (body)."""
+    gtm = SHOP.get("gtmId", "").strip()
+    if not re.fullmatch(r"GTM-[A-Z0-9]+", gtm):
+        return "", ""
+    head = f"""<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){{dataLayer.push(arguments);}}
+(function () {{
+  var c = null;
+  try {{ c = localStorage.getItem('bv-consent'); }} catch (e) {{}}
+  var on = c === 'granted' ? 'granted' : 'denied';
+  gtag('consent', 'default', {{ analytics_storage: on, ad_storage: on, ad_user_data: on, ad_personalization: on, wait_for_update: 500 }});
+}})();
+</script>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){{w[l]=w[l]||[];w[l].push({{'gtm.start':
+new Date().getTime(),event:'gtm.js'}});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+}})(window,document,'script','dataLayer','{gtm}');</script>
+<!-- End Google Tag Manager -->"""
+    body = (f'<!-- Google Tag Manager (noscript) --><noscript><iframe src="https://www.googletagmanager.com/ns.html?id={gtm}" '
+            'height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript><!-- End Google Tag Manager (noscript) -->')
+    return head, body
+
+
+CONSENT = """<div class="consent" id="consent" role="region" aria-label="Cookie choice" hidden>
+ <p>We use cookies to see how our shop is used and to improve it, and to measure our ads.
+ Your cart works either way. <a href="privacy.html#cookies">Read more</a></p>
+ <div class="consent-btns"><button class="btn btn--small btn--ghost" type="button" data-consent="denied">No thanks</button>
+ <button class="btn btn--small" type="button" data-consent="granted">Accept</button></div>
+</div>"""
+
+
 def layout(meta, body):
     current = meta.get("nav", "")
     here = ' aria-current="page"'
@@ -154,10 +189,14 @@ def layout(meta, body):
     else:
         announce = f'<div class="announce">{free_text}</div>' if free_text else ""
     year = datetime.date.today().year
+    gtm_head, gtm_body = tag_manager()
+    consent = CONSENT if gtm_head else ""
+    cookie_link = ' &middot; <a href="#" data-consent-open>Cookie settings</a>' if gtm_head else ""
     return f"""<!doctype html>
 <html lang="en-ZA">
 <head>
 <meta charset="utf-8">
+{gtm_head}
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{meta["title"]}</title>
 <meta name="description" content="{meta["description"]}">
@@ -173,6 +212,7 @@ def layout(meta, body):
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body data-page="{meta["page"]}">
+{gtm_body}
 <a class="sr-only" href="#main">Skip to content</a>
 {announce}
 <header class="site-header">
@@ -210,10 +250,11 @@ def layout(meta, body):
   {payments()}
   <div class="footer-base">
    <span>&copy; {year} BabyVibes is trading as Hostdigi (Pty) Ltd. Prices in South African rand, including VAT where applicable.</span>
-   <span><a href="terms.html">Terms &amp; returns</a> &middot; <a href="privacy.html">Privacy</a></span>
+   <span><a href="terms.html">Terms &amp; returns</a> &middot; <a href="privacy.html">Privacy</a>{cookie_link}</span>
   </div>
  </div>
 </footer>
+{consent}
 <script src="assets/js/store.js" defer></script>
 </body>
 </html>
