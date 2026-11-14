@@ -14,6 +14,7 @@ const BV_STATUSES = array(
 	'shipped'         => 'Shipped',
 	'delivered'       => 'Delivered',
 	'cancelled'       => 'Cancelled',
+	'refund_pending'  => 'Refund in progress',
 	'refunded'        => 'Refunded',
 	'checkout_failed' => 'Payment page failed',
 	'amount_mismatch' => 'Check payment amount',
@@ -638,11 +639,57 @@ function bv_yoco_request( $method, $path, $body = null, $idempotency_key = null 
 	);
 	if ( null !== $body ) {
 		curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode( $body ) );
+	} elseif ( 'POST' === $method ) {
+		curl_setopt( $ch, CURLOPT_POSTFIELDS, '' ); // A POST with no body (Yoco's full refund) still needs Content-Length: 0.
 	}
 	$raw    = curl_exec( $ch );
 	$status = (int) curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+	$err    = curl_error( $ch );
 	curl_close( $ch );
-	return array( $status, json_decode( (string) $raw, true ) );
+	$data = json_decode( (string) $raw, true );
+	if ( 0 === $status ) {
+		$data = array( 'message' => 'Could not reach Yoco: ' . $err );
+	}
+	return array( $status, is_array( $data ) ? $data : array( 'message' => mb_substr( (string) $raw, 0, 300 ) ) );
+}
+
+/**
+ * Asks Yoco to refund an order in full (POST /checkouts/{id}/refund with no body).
+ * Yoco confirms later with a refund.succeeded or refund.failed webhook.
+ * Returns [ok, message].
+ */
+function bv_yoco_refund( array $order ) {
+	if ( empty( $order['checkoutId'] ) ) {
+		return array( false, 'This order has no Yoco checkout, so it cannot be refunded through Yoco.' );
+	}
+	list( $status, $body ) = bv_yoco_request( 'POST', '/checkouts/' . rawurlencode( $order['checkoutId'] ) . '/refund', null, 'refund-' . $order['id'] );
+	if ( $status >= 200 && $status < 300 ) {
+		return array( true, (string) ( $body['status'] ?? 'created' ) );
+	}
+	$msg = (string) ( $body['displayMessage'] ?? $body['message'] ?? $body['description'] ?? "HTTP $status" );
+	return array( false, "Yoco did not accept the refund: $msg" );
+}
+
+/** Calls the Brevo API (used by the admin System check). Returns [http status, decoded body]. */
+function bv_brevo_request( $method, $path ) {
+	if ( defined( 'BV_BREVO_MOCK' ) ) {
+		return call_user_func( BV_BREVO_MOCK, $method, $path );
+	}
+	$ch = curl_init( 'https://api.brevo.com/v3' . $path );
+	curl_setopt_array(
+		$ch,
+		array(
+			CURLOPT_CUSTOMREQUEST  => $method,
+			CURLOPT_HTTPHEADER     => array( 'api-key: ' . bv_config()['brevo_api_key'], 'Accept: application/json' ),
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_TIMEOUT        => 15,
+		)
+	);
+	$raw    = curl_exec( $ch );
+	$status = (int) curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+	curl_close( $ch );
+	$data = json_decode( (string) $raw, true );
+	return array( $status, is_array( $data ) ? $data : array() );
 }
 
 /**

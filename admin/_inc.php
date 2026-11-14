@@ -107,6 +107,7 @@ function bv_admin_header( $title, $active = '' ) {
 		'customers.php' => 'Customers',
 		'reviews.php'   => 'Reviews',
 		'emails.php'    => 'Emails',
+		'health.php'    => 'System check',
 	);
 	$to_ship = (int) bv_row( "SELECT COUNT(*) AS n FROM orders WHERE status = 'paid'" )['n'];
 	$pending = (int) bv_row( "SELECT COUNT(*) AS n FROM reviews WHERE status = 'pending'" )['n'];

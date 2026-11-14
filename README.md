@@ -48,9 +48,10 @@ HTML/CSS/JavaScript; the back end is PHP with a MySQL database, so it runs on an
 | `api/account.php`, `track.php` | Customer accounts and order tracking |
 | `api/review.php`, `reviews.php` | Leaving reviews, and the published ones for the homepage |
 | `api/setup-webhook.php` | One-time Yoco webhook setup |
-| `admin/` | The admin back office |
+| `admin/` | The admin back office, including the System check |
+| `.cpanel.yml`, `.htaccess`, `robots.txt` | cPanel Git deployment, https and security rules, search engine rules |
 | `tools/` | Page builder and page contents (don't upload) |
-| `tests/` | Local test kit with a fake Yoco (don't upload) |
+| `tests/` | Automated end-to-end tests with a fake Yoco and Brevo (don't upload) |
 
 ## How a sale works
 
@@ -75,11 +76,26 @@ In cPanel > **MySQL Databases**:
 2. Create a database user with a strong password (use the password generator).
 3. Add the user to the database with **All privileges**.
 
-### 2. Upload the site
+### 2. Put the site on the server
 
-Upload everything **except `tests/` and `tools/`** to the folder of your subdomain (for example
-`public_html/babyvibes`) with cPanel File Manager or FTP. If WordPress is installed there now, use a fresh
-subdomain or remove WordPress first. The site must run on **https** (cPanel > SSL/TLS Status > Run AutoSSL).
+The site must run on **https** (cPanel > SSL/TLS Status > Run AutoSSL). If WordPress is installed in the folder now,
+use a fresh subdomain or remove WordPress first.
+
+**Option A: cPanel Git deployment (recommended; updates are two clicks).**
+
+1. In `.cpanel.yml` in this repository, change `DEPLOYPATH` to your shop folder, for example
+   `/home/yourcpaneluser/public_html/` or `/home/yourcpaneluser/babyvibes.yourdomain.co.za/` (your cPanel username
+   is shown in cPanel's sidebar). Commit that change to the `main` branch.
+2. cPanel > **Git Version Control** > Create. Clone URL: `https://github.com/TKPHOTO2023/babyvibes.git` (for a
+   private repository, use a GitHub personal access token or deploy key as cPanel explains). Repository path: a
+   folder **outside** the website, for example `/home/yourcpaneluser/repositories/babyvibes`.
+3. Manage > Pull or Deploy > **Deploy HEAD Commit**. The site files are copied to `DEPLOYPATH`. The test kit and page
+   builder are not copied, and your `api/config.php` is never touched.
+
+To publish later changes: Manage > Pull or Deploy > **Update from Remote**, then **Deploy HEAD Commit**.
+
+**Option B: upload by hand.** Upload everything **except `tests/`, `tools/` and the `.md` files** with cPanel File
+Manager or FTP. Include the hidden `.htaccess` files (turn on "Show hidden files" in File Manager).
 
 ### 3. Brevo (emails)
 
@@ -114,7 +130,25 @@ email and an admin password (at least 12 characters). Sign in at `https://your-s
 ### 6. Connect Yoco
 
 Open `https://your-shop/api/setup-webhook.php?token=YOUR_ADMIN_TOKEN` once. It registers the shop with Yoco so
-payments are confirmed automatically. You should see "Done".
+payments are confirmed automatically, and replaces any earlier registration for the same address. You should see
+"Done".
+
+### 6b. Run the System check
+
+Admin > **System check** tests everything the shop needs and says exactly what to fix:
+
+- server: PHP version and extensions, https, the shop address
+- database: connection and all tables
+- Yoco: whether the key is accepted, test or live mode, whether payment confirmations are connected, and when the
+  last notification from Yoco arrived
+- Brevo: whether the key is accepted, your plan, whether your domain is authenticated and your sender is active
+- security: setup password, leftover setup and test files
+
+Fix every red item before taking orders. The page also has a **Send test email** button: use it and check the email
+arrives in your inbox, not spam.
+
+If the Brevo key is refused with "unrecognised IP address", go to Brevo > Security > Authorised IPs and add your
+hosting server's IP address (or turn that restriction off), because Brevo blocks API calls from unknown servers.
 
 ### 7. Test everything
 
@@ -125,13 +159,19 @@ With the test key, place an order with a Yoco test card (Yoco's developer docs l
 - the welcome, order and new-order emails arrive (and not in spam)
 - marking it shipped and delivered in the admin sends those emails, and `track.html` shows the progress
 - the payment shows in the Yoco portal under test payments
+- a declined test card returns to checkout with "The payment didn't go through"
+- **Refund through Yoco** on the order (under "Cancel or refund") changes it to *Refund in progress*, then
+  *Refunded* within a minute, and the customer gets the refund email
+- the System check's "Last notification from Yoco" shows a time
 
-Then delete the test order's data if you like (it's only in test mode) or just leave it.
+Test orders stay in the admin, marked as test payments in Yoco. Leave them, or cancel them so they don't count in
+the dashboard.
 
 ### 8. Switch to live
 
 Put your **live** key (`sk_live_...`) in `api/config.php`, open `api/setup-webhook.php?token=...` again (live mode
-needs its own webhook), and make one small real purchase to confirm.
+needs its own webhook), run the System check (everything green except the reminders you choose to leave), and make
+one small real purchase to confirm. You can refund it straight away from the admin.
 
 ### 9. Before launch
 
@@ -267,11 +307,19 @@ altered reviews that mislead shoppers break the Consumer Protection Act.
 | Paid, being packed | Paid: pack it and mark it shipped |
 | Shipped | Tracking details sent to the customer |
 | Delivered | Done; the customer was asked for a review |
-| Cancelled / Refunded | Recorded in the admin. Make actual refunds in the Yoco portal |
+| Refund in progress | You clicked "Refund through Yoco"; waiting for Yoco to confirm (usually under a minute) |
+| Refunded | Yoco confirmed the refund; the customer was emailed. (Or you marked a refund made in the Yoco portal) |
+| Cancelled | Cancelled without a refund (for example an unpaid order) |
 | Check payment amount | Yoco reported a different amount: check it in Yoco before sending anything |
 | Payment page failed | Yoco's page couldn't open (the shopper saw an error and can try again) |
 
-Your Yoco portal remains the record of payments and refunds. Email delivery details (delivered, opened, bounced)
+**Refunds:** on a paid order, open "Cancel or refund" and click **Refund through Yoco**. The full amount goes back to
+the customer's card; when Yoco confirms, the order becomes Refunded and the customer is emailed (with your reason,
+if you gave one). If Yoco refuses or the refund fails, you're told why and the order goes back to its previous
+status. Partial refunds can be made in the Yoco portal.
+
+Yoco also sends the shop its card-machine sales and other payments on your account; the shop ignores everything
+that isn't one of its own checkouts. Your Yoco portal remains the record of payments and refunds. Email delivery details (delivered, opened, bounced)
 are in Brevo > Transactional > Logs.
 
 ## Changing pages
@@ -282,16 +330,25 @@ root `.html` files, but they'll be overwritten on the next build.
 
 ## Testing locally
 
-Uses SQLite instead of MySQL and a fake Yoco, so nothing touches real payments or sends real emails:
+The automated test suite drives the whole shop in a browser against the real PHP back end, with a fake Yoco (same
+request and notification formats as Yoco's API) and emails written to a file. It covers shopping, accounts,
+checkout, paid, declined and cancelled payments, Yoco refunds (success and failure), every email, order tracking,
+reviews, the dashboard, the System check and the security checks.
 
 ```bash
-php -d auto_prepend_file=$PWD/tests/mock-yoco.php api/install.php --email=you@example.com --password='a-long-test-password'
+tests/run.sh
 ```
+
+```bash
+BV_TEST_DB=mysql tests/run.sh
+```
+
+The first uses SQLite; the second a local MySQL or MariaDB database (see `tests/README.md`). Both must end with
+"0 failed" and "No PHP errors or warnings." Run them after every change.
+
+To click around yourself, start the test server and open http://127.0.0.1:8765 (admin: owner@example.test /
+test-admin-password-123):
 
 ```bash
 PHP_CLI_SERVER_WORKERS=4 php -d auto_prepend_file=$PWD/tests/mock-yoco.php -S 127.0.0.1:8765 -t .
 ```
-
-Open http://127.0.0.1:8765, buy something, and click "Pay" on the fake Yoco page. The admin is at
-http://127.0.0.1:8765/admin/. Emails are written to `tests/mail.log` (and their HTML to `tests/mail-html/`); the
-database is `tests/test.db`.

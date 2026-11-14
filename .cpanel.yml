@@ -1,0 +1,11 @@
+# cPanel Git deployment (cPanel > Git Version Control > Manage > Pull or Deploy > Deploy HEAD Commit).
+# 1. Change DEPLOYPATH to your shop folder (keep the slash at the end).
+# 2. Your api/config.php is never touched: it isn't in git, and nothing here deletes files.
+# The test kit (tests/) and page builder (tools/) are not copied.
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/CPANELUSERNAME/public_html/
+    - /bin/mkdir -p $DEPLOYPATH
+    - /bin/cp -f *.html robots.txt .htaccess $DEPLOYPATH
+    - /bin/cp -Rf assets data api admin $DEPLOYPATH

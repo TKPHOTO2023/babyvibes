@@ -47,8 +47,30 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] ) {
 			bv_flash( 'Marked as delivered.' . ( $email ? ( $sent ? ' The customer was asked for a review.' : ' The email could not be sent: see Emails.' ) : '' ) );
 			break;
 
+		case 'yoco_refund':
+			// Refund the full amount to the shopper's card through Yoco. Yoco confirms with a webhook,
+			// which marks the order refunded and emails the customer.
+			if ( ! in_array( $order['status'], array( 'paid', 'shipped', 'delivered' ), true ) ) {
+				bv_flash( 'Only paid orders can be refunded.', 'error' );
+				break;
+			}
+			list( $ok, $msg ) = bv_yoco_refund( $order );
+			if ( ! $ok ) {
+				bv_order_event( $id, 'note', "Refund attempt by $by failed: $msg", false );
+				bv_flash( $msg . ' You can also refund it in the Yoco portal and then use "Mark as refunded".', 'error' );
+				break;
+			}
+			bv_update_order( $id, array( 'status' => 'refund_pending' ) );
+			bv_order_event( $id, 'refund_requested', "Refund of " . bv_rand( $order['total'] ) . " requested from Yoco by $by (previous status: {$order['status']}).", false );
+			if ( $text ) {
+				bv_order_event( $id, 'refund_reason', $text, false );
+			}
+			bv_flash( 'Refund requested from Yoco. The order changes to Refunded, and the customer is emailed, as soon as Yoco confirms it (usually within a minute).' );
+			break;
+
 		case 'cancel':
 		case 'refund':
+			// "refund" here only records a refund that was already made in the Yoco portal.
 			$refund = 'refund' === $action;
 			bv_update_order( $id, array( 'status' => $refund ? 'refunded' : 'cancelled', 'cancelled_at' => bv_now() ) );
 			bv_order_event( $id, $action, ( $refund ? 'Refunded.' : 'Cancelled.' ) . ( $text ? ' ' . $text : '' ), true );
@@ -56,7 +78,7 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] ) {
 				bv_order_event( $id, 'note', "Reason ($by): $text", false );
 			}
 			$sent = $email && bv_email_cancelled( bv_load_order( $id ), $refund, $text );
-			bv_flash( ( $refund ? 'Marked as refunded. Remember to make the refund in the Yoco portal.' : 'Order cancelled.' ) . ( $email ? ( $sent ? ' The customer was emailed.' : ' The email could not be sent: see Emails.' ) : '' ) );
+			bv_flash( ( $refund ? 'Marked as refunded.' : 'Order cancelled.' ) . ( $email ? ( $sent ? ' The customer was emailed.' : ' The email could not be sent: see Emails.' ) : '' ) );
 			break;
 
 		case 'mark_paid':
@@ -145,6 +167,8 @@ bv_admin_header( 'Order ' . $id, 'orders.php' );
 				<label class="check"><input type="checkbox" name="notify" value="1" checked> Send the customer the order confirmation</label>
 				<button class="btn btn-ghost">Mark as paid</button>
 			</form>
+		<?php elseif ( 'refund_pending' === $s ) : ?>
+			<p>The refund was sent to Yoco and is waiting for Yoco to confirm it. This page updates when it does. If it stays like this for more than an hour, check the refund in the Yoco portal.</p>
 		<?php else : ?>
 			<p class="muted">Nothing to do: this order is <?php echo h( strtolower( BV_STATUSES[ $s ] ?? $s ) ); ?>.</p>
 		<?php endif; ?>
@@ -155,10 +179,13 @@ bv_admin_header( 'Order ' . $id, 'orders.php' );
 				<?php echo bv_csrf_field(); ?>
 				<label>Reason, shown to the customer <span class="muted">(optional)</span><textarea name="text" rows="2"></textarea></label>
 				<label class="check"><input type="checkbox" name="notify" value="1" checked> Email the customer</label>
-				<p class="muted small">A refund here only records it. Make the actual refund in the Yoco portal.</p>
+				<?php if ( in_array( $s, array( 'paid', 'shipped', 'delivered' ), true ) && $order['checkoutId'] ) : ?>
+					<p class="small"><strong>Refund through Yoco</strong> sends <?php echo bv_money( $order['total'] ); ?> back to the customer's card. The customer is emailed when Yoco confirms it.</p>
+				<?php endif; ?>
 				<div class="btn-row">
-					<button class="btn btn-ghost" name="action" value="cancel">Cancel order</button>
-					<?php if ( 'pending' !== $s ) : ?><button class="btn btn-danger" name="action" value="refund">Mark as refunded</button><?php endif; ?>
+					<?php if ( in_array( $s, array( 'paid', 'shipped', 'delivered' ), true ) && $order['checkoutId'] ) : ?><button class="btn btn-danger" name="action" value="yoco_refund">Refund <?php echo bv_money( $order['total'] ); ?> through Yoco</button><?php endif; ?>
+					<button class="btn btn-ghost" name="action" value="cancel">Cancel without refund</button>
+					<?php if ( 'pending' !== $s ) : ?><button class="btn btn-ghost" name="action" value="refund">Mark as refunded (already refunded in the Yoco portal)</button><?php endif; ?>
 				</div>
 			</form>
 		</details>
@@ -169,7 +196,7 @@ bv_admin_header( 'Order ' . $id, 'orders.php' );
 		<h2>History</h2>
 		<ol class="timeline">
 		<?php foreach ( $events as $e ) : ?>
-			<li class="ev-<?php echo h( $e['type'] ); ?>"><time><?php echo h( bv_local( $e['created_at'] ) ); ?></time> <?php echo h( $e['message'] ); ?><?php echo in_array( $e['type'], array( 'note', 'checkout_failed', 'amount_mismatch' ), true ) ? ' <span class="muted small">(internal)</span>' : ''; ?></li>
+			<li class="ev-<?php echo h( $e['type'] ); ?>"><time><?php echo h( bv_local( $e['created_at'] ) ); ?></time> <?php echo h( $e['message'] ); ?><?php echo in_array( $e['type'], array( 'note', 'checkout_failed', 'amount_mismatch', 'refund_requested', 'refund_reason', 'refund_failed', 'payment_failed' ), true ) ? ' <span class="muted small">(internal)</span>' : ''; ?></li>
 		<?php endforeach; ?>
 		</ol>
 		<form method="post" class="inline">

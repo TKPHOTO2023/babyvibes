@@ -5,3 +5,5 @@ __pycache__/
 tests/*.db
 tests/*.log
 tests/mail-html/
+tests/yoco-webhooks.json
+tests/refund-fail

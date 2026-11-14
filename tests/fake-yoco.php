@@ -1,20 +1,29 @@
 <?php
-/** Local testing only: stands in for Yoco's payment page. "Pay" sends a signed payment.succeeded webhook. */
+/**
+ * Local testing only: stands in for Yoco's hosted payment page. "Pay" sends a signed payment.succeeded
+ * webhook and returns to the shop like Yoco does; "Decline" sends payment.failed; "Cancel" goes back.
+ * It does nothing unless the test kit (mock-yoco.php) is loaded, so it is inert on a live site.
+ */
+defined( 'BV_YOCO_MOCK' ) || exit( 'Test file.' );
+require __DIR__ . '/webhook-sender.php';
+
 $checkout = preg_replace( '/[^\w]/', '', $_GET['checkout'] ?? '' );
 $amount   = (int) ( $_GET['amount'] ?? 0 );
-$success  = $_GET['success'] ?? '/';
+$success  = (string) ( $_GET['success'] ?? '/' );
+$cancel   = (string) ( $_GET['cancel'] ?? '/' );
 if ( 'POST' === $_SERVER['REQUEST_METHOD'] ) {
-	$secret = 'whsec_' . base64_encode( 'test-secret-key-0123456789abcdef' );
-	$body   = json_encode( array( 'id' => 'evt_test', 'type' => 'payment.succeeded', 'payload' => array( 'id' => 'p_test', 'amount' => $amount, 'currency' => 'ZAR', 'status' => 'succeeded', 'mode' => 'test', 'metadata' => array( 'checkoutId' => $checkout ) ) ) );
-	$id     = 'msg_' . bin2hex( random_bytes( 4 ) );
-	$ts     = (string) time();
-	$sig    = 'v1,' . base64_encode( hash_hmac( 'sha256', "$id.$ts.$body", base64_decode( substr( $secret, 6 ) ), true ) );
-	$ch     = curl_init( 'http://127.0.0.1:8765/api/webhook.php' );
-	curl_setopt_array( $ch, array( CURLOPT_POST => true, CURLOPT_POSTFIELDS => $body, CURLOPT_RETURNTRANSFER => true, CURLOPT_NOPROXY => '*', CURLOPT_HTTPHEADER => array( 'Content-Type: application/json', "webhook-id: $id", "webhook-timestamp: $ts", "webhook-signature: $sig" ) ) );
-	curl_exec( $ch );
-	header( 'Location: ' . $success );
+	$what = $_POST['what'] ?? '';
+	if ( 'pay' === $what ) {
+		bv_test_send_webhook( 'payment.succeeded', $checkout, $amount );
+		header( 'Location: ' . $success );
+	} elseif ( 'decline' === $what ) {
+		bv_test_send_webhook( 'payment.failed', $checkout, $amount );
+		header( 'Location: ' . str_replace( 'cancelled=1', 'failed=1', $cancel ) );
+	} else {
+		header( 'Location: ' . $cancel );
+	}
 	exit;
 }
 ?><!doctype html><meta charset="utf-8"><title>Fake Yoco</title>
 <h1>Fake Yoco payment page (test)</h1><p>Amount: R<?php echo number_format( $amount / 100, 2 ); ?></p>
-<form method="post"><button id="fake-pay">Pay</button></form>
+<form method="post"><button id="fake-pay" name="what" value="pay">Pay</button> <button id="fake-decline" name="what" value="decline">Decline card</button> <button id="fake-cancel" name="what" value="cancel">Cancel</button></form>

@@ -27,16 +27,48 @@ if ( ! $valid ) {
 $event   = json_decode( $raw, true );
 $type    = $event['type'] ?? '';
 $payment = $event['payload'] ?? array();
+bv_setting( 'last_webhook_at', bv_now() . ' ' . $type );
 
-if ( 'payment.succeeded' !== $type ) {
-	bv_json( array( 'ok' => true, 'ignored' => $type ) ); // Acknowledge other events.
+// Yoco sends every payment on the account here (including card-machine sales), so only
+// events for checkouts this shop created are acted on. Everything else is acknowledged.
+$checkout_id = (string) ( $payment['metadata']['checkoutId'] ?? '' );
+$order       = '' !== $checkout_id ? bv_find_order_by_checkout( $checkout_id ) : null;
+if ( ! $order ) {
+	bv_json( array( 'ok' => true, 'unknown' => true ) );
 }
 
-$checkout_id = $payment['metadata']['checkoutId'] ?? '';
-$order       = $checkout_id ? bv_find_order_by_checkout( $checkout_id ) : null;
-if ( ! $order ) {
-	error_log( "BabyVibes: payment for unknown checkout $checkout_id." );
-	bv_json( array( 'ok' => true, 'unknown' => true ) );
+if ( 'payment.failed' === $type ) {
+	if ( in_array( $order['status'], array( 'pending', 'checkout_failed' ), true ) ) {
+		bv_order_event( $order['id'], 'payment_failed', 'A payment attempt failed (the card was declined or not completed). The shopper can try again.', false );
+	}
+	bv_json( array( 'ok' => true ) );
+}
+
+if ( 'refund.succeeded' === $type ) {
+	// Claimed atomically, so a repeated event can't email the customer twice.
+	if ( bv_update( 'orders', array( 'status' => 'refunded', 'cancelled_at' => bv_now(), 'updated_at' => bv_now() ), "id = ? AND status <> 'refunded'", array( $order['id'] ) ) ) {
+		bv_order_event( $order['id'], 'refunded', 'Refunded ' . bv_rand( (int) ( $payment['amount'] ?? $order['total'] ) ) . ' to the card you paid with.' );
+		$reason = bv_row( "SELECT message FROM order_events WHERE order_id = ? AND type = 'refund_reason' ORDER BY id DESC LIMIT 1", array( $order['id'] ) );
+		bv_email_cancelled( bv_load_order( $order['id'] ), true, $reason ? $reason['message'] : '' );
+	}
+	bv_json( array( 'ok' => true ) );
+}
+
+if ( 'refund.failed' === $type ) {
+	if ( 'refund_pending' === $order['status'] ) {
+		$prev = bv_row( "SELECT message FROM order_events WHERE order_id = ? AND type = 'refund_requested' ORDER BY id DESC LIMIT 1", array( $order['id'] ) );
+		$back = $prev && preg_match( '/previous status: (\w+)/', $prev['message'], $m ) && isset( BV_STATUSES[ $m[1] ] ) ? $m[1] : 'paid';
+		bv_update_order( $order['id'], array( 'status' => $back ) );
+	}
+	$why = (string) ( $payment['failureReason'] ?? 'no reason given' );
+	bv_order_event( $order['id'], 'refund_failed', "Yoco could not complete the refund ($why). Try again, or refund it in the Yoco portal.", false );
+	$to = bv_config()['orders_email'] ? bv_config()['orders_email'] : bv_shop()['email'];
+	bv_send_email( $to, 'BabyVibes', "Refund failed for order {$order['id']}", bv_email_layout( 'Refund failed', bv_eh( 'A refund failed' ) . bv_ep( 'Yoco could not complete the refund for order ' . bv_e( $order['id'] ) . ' (' . bv_e( $why ) . '). Please try again from the admin, or refund it in the Yoco portal.' ) ), "Yoco could not complete the refund for order {$order['id']} ($why). Try again from the admin, or refund it in the Yoco portal.", 'refund_failed', $order['id'] );
+	bv_json( array( 'ok' => true ) );
+}
+
+if ( 'payment.succeeded' !== $type ) {
+	bv_json( array( 'ok' => true, 'ignored' => $type ) );
 }
 
 $amount   = (int) ( $payment['amount'] ?? 0 );

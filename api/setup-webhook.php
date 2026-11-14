@@ -17,11 +17,24 @@ if ( strlen( $config['admin_token'] ) < 16 || 'change-me-to-a-long-random-string
 }
 
 $url = rtrim( $config['site_url'], '/' ) . '/api/webhook.php';
-if ( 0 !== strpos( $url, 'https://' ) ) {
+if ( 0 !== strpos( $url, 'https://' ) && ! preg_match( '#^http://(127\.0\.0\.1|localhost)[:/]#', $url ) ) { // http only for local testing
 	exit( "site_url in api/config.php must start with https:// (Yoco only sends webhooks to secure addresses).\n" );
 }
 
 $mode = 0 === strpos( $config['yoco_secret_key'], 'sk_live_' ) ? 'live' : 'test';
+
+// Remove earlier webhooks for this same address, so Yoco doesn't keep calling with an old secret.
+list( $ls, $list ) = bv_yoco_request( 'GET', '/webhooks' );
+if ( 401 === $ls || 403 === $ls ) {
+	http_response_code( 502 );
+	exit( "Yoco rejected the secret key (HTTP $ls). Check yoco_secret_key in api/config.php.\n" );
+}
+foreach ( (array) ( $list['subscriptions'] ?? array() ) as $sub ) {
+	if ( isset( $sub['url'], $sub['id'] ) && rtrim( $sub['url'], '/' ) === $url ) {
+		bv_yoco_request( 'DELETE', '/webhooks/' . rawurlencode( $sub['id'] ) );
+		echo "Removed the old webhook {$sub['id']} ({$sub['mode']} mode).\n";
+	}
+}
 list( $status, $body ) = bv_yoco_request(
 	'POST',
 	'/webhooks',
@@ -37,7 +50,7 @@ if ( $status < 200 || $status >= 300 || empty( $body['secret'] ) ) {
 }
 
 bv_setting( 'yoco_webhook_secret', $body['secret'] );
-bv_setting( 'yoco_webhook_info', json_encode( array( 'id' => $body['id'] ?? '', 'mode' => $mode, 'url' => $url, 'created' => gmdate( 'c' ) ) ) );
+bv_setting( 'yoco_webhook_info', json_encode( array( 'id' => $body['id'] ?? '', 'mode' => $body['mode'] ?? $mode, 'url' => $url, 'created' => gmdate( 'c' ) ) ) );
 
 echo "Done. Yoco will notify $url about payments ($mode mode).\n";
 echo "The webhook secret is saved; there's nothing to copy.\n";

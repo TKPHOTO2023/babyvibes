@@ -758,7 +758,7 @@
 
 	/** An order's progress, history and courier details (account page and tracking page). */
 	function orderDetailHtml(o) {
-		var stopped = ['cancelled', 'refunded'].indexOf(o.status) >= 0;
+		var stopped = ['cancelled', 'refunded', 'refund_pending'].indexOf(o.status) >= 0;
 		var reached = { pending: 0, amount_mismatch: 0, checkout_failed: 0, paid: 1, shipped: 2, delivered: 3 }[o.status] || 0;
 		var steps = stopped ? '<p class="alert alert--info">' + esc(o.statusLabel) + '</p>' :
 			'<ol class="steps" aria-label="Order progress">' + '<li class="done">Ordered</li>' + STEPS.map(function (st, i) {
